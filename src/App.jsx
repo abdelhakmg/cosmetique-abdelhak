@@ -10,31 +10,32 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
+  const handleOpenCheckout = () => {
+    setIsCartOpen(false);
+    setIsCheckoutOpen(true);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans" dir="rtl">
-      {/* Navbar */}
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       <Navbar onOpenCart={() => setIsCartOpen(true)} />
+      
+      <main className="flex-1">
+        <Hero />
+        <ProductGrid />
+      </main>
 
-      {/* Hero Section */}
-      <Hero />
-
-      {/* Products Grid */}
-      <ProductGrid />
-
-      {/* Drawer & Modal */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        onCheckout={() => setIsCheckoutOpen(true)}
-      />
-
-      <CheckoutModal
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-      />
-
-      {/* Footer */}
       <Footer />
+
+      <CartDrawer 
+        isOpen={isCartOpen} 
+        onClose={() => setIsCartOpen(false)} 
+        onCheckout={handleOpenCheckout}
+      />
+
+      <CheckoutModal 
+        isOpen={isCheckoutOpen} 
+        onClose={() => setIsCheckoutOpen(false)} 
+      />
     </div>
   );
 }
