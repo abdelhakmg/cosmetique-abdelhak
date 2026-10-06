@@ -1,10 +1,9 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
-import { StoreContext } from '../context/StoreContext';
+import { useStore } from '../context/StoreContext';
 
 export default function CartDrawer({ isOpen, onClose, onCheckout }) {
-  const { cart, updateQuantity, removeFromCart, getCartTotal } = useContext(StoreContext);
-
+  const { cart, updateQuantity, removeFromCart, getCartTotal } = useStore();
   if (!isOpen) return null;
 
   return (
