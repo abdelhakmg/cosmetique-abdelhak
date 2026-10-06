@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { X, CheckCircle2 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
-import algeriaWilayas from '../data/algeriaWilayas';
+import { algeriaWilayas } from '../data/algeriaWilayas';
 
 export default function CheckoutModal({ isOpen, onClose }) {
   const { cart, getCartTotal, clearCart } = useStore();
