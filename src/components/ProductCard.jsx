@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { ShoppingCart, Star } from 'lucide-react';
-import { StoreContext } from '../context/StoreContext';
+import { useStore } from '../context/StoreContext';
 
 export default function ProductCard({ product }) {
   const { addToCart } = useContext(StoreContext);
