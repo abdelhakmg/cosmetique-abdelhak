@@ -2,7 +2,7 @@ import React from 'react';
 import { useStore } from '../context/StoreContext';
 import ProductCard from './ProductCard';
 
-export default function ProductGrid() {
+export default function ProductGrid({ onSelectProduct }) {
   const { products, selectedCategory, searchQuery } = useStore();
 
   // تصفية المنتجات حسب التصنيف وحقل البحث
@@ -32,7 +32,13 @@ export default function ProductGrid() {
       {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <div 
+              key={product.id} 
+              onClick={() => onSelectProduct && onSelectProduct(product)}
+              className="cursor-pointer"
+            >
+              <ProductCard product={product} onSelect={() => onSelectProduct && onSelectProduct(product)} />
+            </div>
           ))}
         </div>
       ) : (
