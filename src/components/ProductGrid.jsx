@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
-import { StoreContext } from '../context/StoreContext';
+import React from 'react';
+import { useStore } from '../context/StoreContext';
 import ProductCard from './ProductCard';
 
 export default function ProductGrid() {
-  const { products, selectedCategory, searchQuery } = useContext(StoreContext);
+  const { products, selectedCategory, searchQuery } = useStore();
 
   // تصفية المنتجات حسب التصنيف وحقل البحث
   const filteredProducts = products.filter((product) => {
@@ -22,7 +22,7 @@ export default function ProductGrid() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">منتجاتنا المميزة</h2>
-          <p className="text-gray-500 text-sm mt-1">تصفح أحدث التشكيلات والعروض خاصة بنا</p>
+          <p className="text-gray-500 text-sm mt-1">تصفح أحدث التشكيلات والعروض الخاصة بنا</p>
         </div>
         <span className="text-sm text-gray-500 font-medium">
           {filteredProducts.length} منتج
@@ -37,7 +37,7 @@ export default function ProductGrid() {
         </div>
       ) : (
         <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-200">
-          <p className="text-gray-500 text-lg">لا توجد منتجات تطابق بحثك حالياً.</p>
+          <p className="text-gray-500 text-lg">لا توجد منتجات تطابق بحثك حالياً</p>
         </div>
       )}
     </section>
