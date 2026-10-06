@@ -5,15 +5,21 @@ import ProductGrid from './components/ProductGrid';
 import CartDrawer from './components/CartDrawer';
 import CheckoutModal from './components/CheckoutModal';
 import Footer from './components/Footer';
+import AdminDashboard from './components/AdminDashboard';
 
 export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
 
   const handleOpenCheckout = () => {
     setIsCartOpen(false);
     setIsCheckoutOpen(true);
   };
+
+  if (isAdminOpen) {
+    return <AdminDashboard onClose={() => setIsAdminOpen(false)} />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
@@ -25,6 +31,16 @@ export default function App() {
       </main>
 
       <Footer />
+
+      {/* زر سري صغير للآدمن أسفل الشاشة */}
+      <div className="text-center py-2 bg-gray-900 text-gray-400 text-xs">
+        <button 
+          onClick={() => setIsAdminOpen(true)}
+          className="hover:text-white underline font-mono"
+        >
+          ⚙️ لوحة التحكم الإدارية
+        </button>
+      </div>
 
       <CartDrawer 
         isOpen={isCartOpen} 
