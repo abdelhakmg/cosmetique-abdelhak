@@ -91,9 +91,32 @@ export const StoreProvider = ({ children }) => {
   const cartSubtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
-    
+    <StoreContext.Provider
+      value={{
+        products,
+        setProducts,
+        categories: CATEGORIES,
+        cart,
+        addToCart,
+        removeFromCart,
+        updateCartQuantity,
+        clearCart,
+        orders,
+        createOrder,
+        lastCreatedOrder,
+        searchQuery,
+        setSearchQuery,
+        selectedCategory,
+        setSelectedCategory,
+        isCartOpen,
+        setIsCartOpen,
+        isCheckoutOpen,
+        setIsCheckoutOpen,
+        cartSubtotal
+      }}
+    >
       {children}
-    
+    </StoreContext.Provider>
   );
 };
 
