@@ -1,10 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { X, CheckCircle2 } from 'lucide-react';
-import { StoreContext } from '../context/StoreContext';
+import { useStore } from '../context/StoreContext';
 import algeriaWilayas from '../data/algeriaWilayas';
 
 export default function CheckoutModal({ isOpen, onClose }) {
-  const { cart, getCartTotal, clearCart } = useContext(StoreContext);
+  const { cart, getCartTotal, clearCart } = useStore();
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
