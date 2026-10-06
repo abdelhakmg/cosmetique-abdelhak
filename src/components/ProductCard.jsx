@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { ShoppingCart, Star } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
 export default function ProductCard({ product }) {
-  const { addToCart } = useContext(StoreContext);
+  const { addToCart } = useStore();
 
   return (
     <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden border border-gray-100 flex flex-col justify-between">
@@ -47,7 +47,7 @@ export default function ProductCard({ product }) {
           {/* زر الإضافة للسلة */}
           <button
             onClick={() => addToCart(product)}
-            className="w-full bg-pink-600 hover:bg-pink-700 text-white py-2.5 px-4 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors active:scale-95 duration-150"
+            className="w-full bg-pink-600 hover:bg-pink-700 text-white py-2.5 px-4 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors active:scale-95"
           >
             <ShoppingCart className="w-4 h-4" />
             <span>إضافة للسلة</span>
