@@ -1,5 +1,4 @@
-React Navbar Component
-Below is the implementation of the Navbar component for the e-commerce application.import React from 'react';
+import React from 'react';
 
 import { ShoppingBag, Search, Phone } from 'lucide-react';
 
