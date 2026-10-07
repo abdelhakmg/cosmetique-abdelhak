@@ -3,18 +3,24 @@ import { useStore } from '../context/StoreContext';
 import { ShoppingBag, Menu, X, PhoneCall, Sparkles, ShieldCheck } from 'lucide-react';
 
 export default function Navbar({ onOpenAdmin, onOpenCart }) {
-  const { cart, categories, settings } = useStore();
+  const store = useStore() || {};
+  const cart = store.cart || [];
+  const categories = store.categories || [];
+  const settings = store.settings || {};
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [logoClicks, setLogoClicks] = useState(0);
 
-  // حساب إجمالي عدد القطع في السلة
-  const cartItemsCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  // حساب إجمالي عدد القطع مع حماية من الأخطاء
+  const cartItemsCount = Array.isArray(cart) 
+    ? cart.reduce((sum, item) => sum + (item?.quantity || 1), 0) 
+    : 0;
 
   // فتح لوحة التحكم بعد 3 ضغطات متتالية على اللوجو
   const handleLogoClick = () => {
     const newClicks = logoClicks + 1;
     if (newClicks === 3) {
-      onOpenAdmin();
+      if (onOpenAdmin) onOpenAdmin();
       setLogoClicks(0);
     } else {
       setLogoClicks(newClicks);
@@ -63,7 +69,7 @@ export default function Navbar({ onOpenAdmin, onOpenCart }) {
             title="Cosmetique Abdelhak"
           >
             {settings.logoUrl ? (
-              <img src={settings.logoUrl} alt={settings.storeName} className="h-10 object-contain mx-auto" />
+              <img src={settings.logoUrl} alt={settings.storeName || 'Cosmetique Abdelhak'} className="h-10 object-contain mx-auto" />
             ) : (
               <div>
                 <h1 className="text-lg md:text-xl font-black text-gray-900 tracking-tight flex items-center gap-1">
@@ -110,14 +116,14 @@ export default function Navbar({ onOpenAdmin, onOpenCart }) {
 
                 <div className="pt-4 border-t">
                   <span className="text-[10px] text-gray-400 font-bold block mb-2">الأقسام والفئات</span>
-                  {categories.map((c) => (
+                  {categories.map((c, i) => (
                     <a 
-                      key={c.id} 
+                      key={c.id || i} 
                       href="#products-section" 
                       onClick={() => setIsMenuOpen(false)}
                       className="block p-2.5 rounded-xl hover:bg-gray-50 text-gray-600"
                     >
-                      • {c.name}
+                      • {c.name || c}
                     </a>
                   ))}
                 </div>
