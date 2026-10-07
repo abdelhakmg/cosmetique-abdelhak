@@ -1,50 +1,97 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import { LayoutDashboard, ShoppingBag, FolderPlus, MapPin, Settings, Package, Plus, Trash2, ArrowRight } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, FolderPlus, MapPin, Settings, Package, Plus, Trash2, Edit3, Image, ArrowRight, CheckCircle2, Truck, Clock, XCircle } from 'lucide-react';
 
 export default function AdminDashboard({ onClose }) {
   const {
-    products, addProduct, deleteProduct,
+    products, addProduct, updateProduct, deleteProduct,
     categories, addCategory, deleteCategory,
     wilayas, addWilaya, deleteWilaya,
     settings, updateSettings,
-    orders
+    banners, addBanner, deleteBanner,
+    orders, updateOrderStatus, deleteOrder
   } = useStore();
 
-  const [activeTab, setActiveTab] = useState('products'); // 'products', 'categories', 'settings', 'wilayas', 'orders'
+  const [activeTab, setActiveTab] = useState('products'); // 'products', 'banners', 'categories', 'settings', 'wilayas', 'orders'
 
-  // 1. نموذج إضافة منتج مع صور متعددة
+  // --- 1. حالة المنتجات (إضافة + تعديل) ---
+  const [editingProductId, setEditingProductId] = useState(null);
   const [productName, setProductName] = useState('');
   const [productPrice, setProductPrice] = useState('');
   const [productCategory, setProductCategory] = useState(categories[0]?.name || 'كوسمتيك');
   const [productDescription, setProductDescription] = useState('');
-  const [productImages, setProductImages] = useState(['', '']); // صورتين أو أكثر
+  const [productImages, setProductImages] = useState(['', '']);
 
-  const handleAddProduct = (e) => {
+  const startEditProduct = (p) => {
+    setEditingProductId(p.id);
+    setProductName(p.name);
+    setProductPrice(p.price);
+    setProductCategory(p.category || 'كوسمتيك');
+    setProductDescription(p.description || '');
+    setProductImages(p.images && p.images.length > 0 ? [...p.images] : [p.image || '', '']);
+  };
+
+  const resetProductForm = () => {
+    setEditingProductId(null);
+    setProductName('');
+    setProductPrice('');
+    setProductDescription('');
+    setProductImages(['', '']);
+  };
+
+  const handleSaveProduct = (e) => {
     e.preventDefault();
-    const validImages = productImages.filter(img => img.trim() !== '');
+    const validImages = productImages.filter((img) => img.trim() !== '');
     if (!productName || !productPrice || validImages.length === 0) {
       alert('يرجى إدخال اسم المنتج، السعر، وصورة واحدة على الأقل');
       return;
     }
 
-    addProduct({
+    const pData = {
       name: productName,
       price: Number(productPrice),
       category: productCategory,
       description: productDescription,
       images: validImages,
       rating: 4.9
-    });
+    };
 
-    setProductName('');
-    setProductPrice('');
-    setProductDescription('');
-    setProductImages(['', '']);
-    alert('تمت إضافة المنتج بنجاح مع صوره!');
+    if (editingProductId) {
+      updateProduct(editingProductId, pData);
+      alert('تم تعديل المنتج بنجاح!');
+    } else {
+      addProduct(pData);
+      alert('تمت إضافة المنتج بنجاح!');
+    }
+    resetProductForm();
   };
 
-  // 2. نموذج إضافة تصنيف دائري جديد
+  // --- 2. حالة البانرات الإشهارية ---
+  const [bannerTitle, setBannerTitle] = useState('');
+  const [bannerSubtitle, setBannerSubtitle] = useState('');
+  const [bannerBadge, setBannerBadge] = useState('');
+  const [bannerImage, setBannerImage] = useState('');
+
+  const handleAddBanner = (e) => {
+    e.preventDefault();
+    if (!bannerTitle || !bannerImage) {
+      alert('يرجى إدخال عنوان الإعلان ورابط الصورة');
+      return;
+    }
+    addBanner({
+      title: bannerTitle,
+      subtitle: bannerSubtitle,
+      badge: bannerBadge,
+      image: bannerImage
+    });
+    setBannerTitle('');
+    setBannerSubtitle('');
+    setBannerBadge('');
+    setBannerImage('');
+    alert('تمت إضافة الإعلان بنجاح!');
+  };
+
+  // --- 3. حالة الفئات ---
   const [catName, setCatName] = useState('');
   const [catImage, setCatImage] = useState('');
 
@@ -57,19 +104,19 @@ export default function AdminDashboard({ onClose }) {
     addCategory(catName, catImage);
     setCatName('');
     setCatImage('');
-    alert('تمت إضافة الفئة الجديدة بنجاح!');
+    alert('تمت إضافة الفئة بنجاح!');
   };
 
-  // 3. نموذج تعديل إعدادات وروابط الصفحات
+  // --- 4. حالة الإعدادات واللوجو ---
   const [settingsForm, setSettingsForm] = useState({ ...settings });
 
   const handleSaveSettings = (e) => {
     e.preventDefault();
     updateSettings(settingsForm);
-    alert('تم حفظ وتحديث إعدادات المتجر ومعلومات التواصل بنجاح!');
+    alert('تم حفظ إعدادات المتجر واللوجو بنجاح!');
   };
 
-  // 4. نموذج إضافة ولاية وسعر الشحن
+  // --- 5. حالة الولايات ---
   const [wilayaCode, setWilayaCode] = useState('');
   const [wilayaName, setWilayaName] = useState('');
   const [wilayaHome, setWilayaHome] = useState('');
@@ -78,7 +125,7 @@ export default function AdminDashboard({ onClose }) {
   const handleAddWilaya = (e) => {
     e.preventDefault();
     if (!wilayaCode || !wilayaName || !wilayaHome) {
-      alert('يرجى ملء رمز واسم الولاية وسعر الشحن');
+      alert('يرجى ملء كافة الخانات المطلوبة');
       return;
     }
     addWilaya({
@@ -91,11 +138,11 @@ export default function AdminDashboard({ onClose }) {
     setWilayaName('');
     setWilayaHome('');
     setWilayaDesk('');
-    alert('تمت إضافة الولاية وسعر الشحن بنجاح!');
+    alert('تمت إضافة الولاية بنجاح!');
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-8 font-sans">
+    <div className="min-h-screen bg-gray-100 p-4 md:p-8 font-sans text-gray-800">
       <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
         
         {/* هيدر اللوحة */}
@@ -103,8 +150,8 @@ export default function AdminDashboard({ onClose }) {
           <div className="flex items-center gap-3">
             <LayoutDashboard className="w-6 h-6 text-rose-500" />
             <div>
-              <h1 className="text-xl font-bold">لوحة التحكم الشاملة</h1>
-              <p className="text-xs text-gray-400">إدارة كافة إعدادات متجر {settings.storeName}</p>
+              <h1 className="text-xl font-bold">لوحة التحكم الإدارية الشاملة</h1>
+              <p className="text-xs text-gray-400">تحكم كامل في المتجر، المنتجات، الإعلانات، والطلبات</p>
             </div>
           </div>
           <button
@@ -127,30 +174,12 @@ export default function AdminDashboard({ onClose }) {
           </button>
 
           <button
-            onClick={() => setActiveTab('categories')}
+            onClick={() => setActiveTab('banners')}
             className={`py-3.5 px-4 flex-1 text-center border-b-2 transition flex items-center justify-center gap-1.5 ${
-              activeTab === 'categories' ? 'border-rose-600 text-rose-600 bg-white' : 'text-gray-500 border-transparent'
+              activeTab === 'banners' ? 'border-rose-600 text-rose-600 bg-white' : 'text-gray-500 border-transparent'
             }`}
           >
-            <FolderPlus className="w-4 h-4" /> الفئات الدائرية ({categories.length})
-          </button>
-
-          <button
-            onClick={() => setActiveTab('settings')}
-            className={`py-3.5 px-4 flex-1 text-center border-b-2 transition flex items-center justify-center gap-1.5 ${
-              activeTab === 'settings' ? 'border-rose-600 text-rose-600 bg-white' : 'text-gray-500 border-transparent'
-            }`}
-          >
-            <Settings className="w-4 h-4" /> معلومات التواصل والموقع
-          </button>
-
-          <button
-            onClick={() => setActiveTab('wilayas')}
-            className={`py-3.5 px-4 flex-1 text-center border-b-2 transition flex items-center justify-center gap-1.5 ${
-              activeTab === 'wilayas' ? 'border-rose-600 text-rose-600 bg-white' : 'text-gray-500 border-transparent'
-            }`}
-          >
-            <MapPin className="w-4 h-4" /> الولايات والشحن ({wilayas.length})
+            <Image className="w-4 h-4" /> البانرات الإشهارية ({banners.length})
           </button>
 
           <button
@@ -161,16 +190,45 @@ export default function AdminDashboard({ onClose }) {
           >
             <Package className="w-4 h-4" /> الطلبات ({orders.length})
           </button>
+
+          <button
+            onClick={() => setActiveTab('categories')}
+            className={`py-3.5 px-4 flex-1 text-center border-b-2 transition flex items-center justify-center gap-1.5 ${
+              activeTab === 'categories' ? 'border-rose-600 text-rose-600 bg-white' : 'text-gray-500 border-transparent'
+            }`}
+          >
+            <FolderPlus className="w-4 h-4" /> الفئات ({categories.length})
+          </button>
+
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`py-3.5 px-4 flex-1 text-center border-b-2 transition flex items-center justify-center gap-1.5 ${
+              activeTab === 'settings' ? 'border-rose-600 text-rose-600 bg-white' : 'text-gray-500 border-transparent'
+            }`}
+          >
+            <Settings className="w-4 h-4" /> اسم المتجر واللوجو
+          </button>
+
+          <button
+            onClick={() => setActiveTab('wilayas')}
+            className={`py-3.5 px-4 flex-1 text-center border-b-2 transition flex items-center justify-center gap-1.5 ${
+              activeTab === 'wilayas' ? 'border-rose-600 text-rose-600 bg-white' : 'text-gray-500 border-transparent'
+            }`}
+          >
+            <MapPin className="w-4 h-4" /> الولايات ({wilayas.length})
+          </button>
         </div>
 
-        {/* 1. تبويب المنتجات (صور متعددة) */}
+        {/* 1. تبويب المنتجات (إضافة + تعديل) */}
         {activeTab === 'products' && (
           <div className="p-6 space-y-8">
             <div className="bg-rose-50/50 border border-rose-100 p-6 rounded-2xl">
               <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <Plus className="w-5 h-5 text-rose-600" /> إضافة منتج مع صور متعددة
+                {editingProductId ? <Edit3 className="w-5 h-5 text-rose-600" /> : <Plus className="w-5 h-5 text-rose-600" />}
+                {editingProductId ? 'تعديل بيانات المنتج الحالية' : 'إضافة منتج جديد مع صور متعددة'}
               </h3>
-              <form onSubmit={handleAddProduct} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              
+              <form onSubmit={handleSaveProduct} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 <div>
                   <label className="block font-bold mb-1">اسم المنتج *</label>
                   <input
@@ -188,7 +246,7 @@ export default function AdminDashboard({ onClose }) {
                   <input
                     type="number"
                     required
-                    placeholder="مثال: 3500"
+                    placeholder="3500"
                     value={productPrice}
                     onChange={(e) => setProductPrice(e.target.value)}
                     className="w-full border rounded-xl p-3 focus:border-rose-600"
@@ -196,7 +254,7 @@ export default function AdminDashboard({ onClose }) {
                 </div>
 
                 <div>
-                  <label className="block font-bold mb-1">اختر الفئة</label>
+                  <label className="block font-bold mb-1">الفئة</label>
                   <select
                     value={productCategory}
                     onChange={(e) => setProductCategory(e.target.value)}
@@ -209,7 +267,7 @@ export default function AdminDashboard({ onClose }) {
                 </div>
 
                 <div>
-                  <label className="block font-bold mb-1">صورة رئيسية للمنتج (URL) *</label>
+                  <label className="block font-bold mb-1">صورة رئيسية (URL) *</label>
                   <input
                     type="url"
                     required
@@ -225,7 +283,7 @@ export default function AdminDashboard({ onClose }) {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block font-bold mb-1">صور إضافية للمنتج (اختياري)</label>
+                  <label className="block font-bold mb-1">صور إضافية للمنتج (تظهر في شريط الصفحة الهبوط)</label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <input
                       type="url"
@@ -253,47 +311,207 @@ export default function AdminDashboard({ onClose }) {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block font-bold mb-1">الوصف</label>
+                  <label className="block font-bold mb-1">وصف تفصيلي للمنتج</label>
                   <textarea
                     rows="2"
-                    placeholder="وصف تفصيلي للمنتج..."
+                    placeholder="مميزات وفوائد المنتج..."
                     value={productDescription}
                     onChange={(e) => setProductDescription(e.target.value)}
                     className="w-full border rounded-xl p-3 focus:border-rose-600"
                   />
                 </div>
 
-                <div className="md:col-span-2">
+                <div className="md:col-span-2 flex gap-3">
                   <button type="submit" className="bg-rose-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-rose-700">
-                    حفظ المنتج
+                    {editingProductId ? 'حفظ والتعديل' : 'إضافة المنتج فوراً'}
                   </button>
+                  {editingProductId && (
+                    <button type="button" onClick={resetProductForm} className="bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-xl">
+                      إلغاء التعديل
+                    </button>
+                  )}
                 </div>
               </form>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {products.map((p) => (
-                <div key={p.id} className="border rounded-2xl overflow-hidden bg-white p-3 flex gap-3 items-center justify-between">
-                  <img src={p.images?.[0] || p.image} alt={p.name} className="w-16 h-16 object-cover rounded-xl shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-xs truncate">{p.name}</h4>
-                    <span className="text-rose-600 font-bold text-xs">{p.price} د.ج</span>
-                    <span className="text-[10px] text-gray-400 block">({p.images?.length || 1} صور)</span>
+                <div key={p.id} className="border rounded-2xl overflow-hidden bg-white p-3 flex flex-col justify-between shadow-sm">
+                  <div className="flex gap-3 items-center mb-3">
+                    <img src={p.images?.[0] || p.image} alt={p.name} className="w-16 h-16 object-cover rounded-xl shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-xs truncate">{p.name}</h4>
+                      <span className="text-rose-600 font-black text-xs">{p.price} د.ج</span>
+                      <span className="text-[10px] text-gray-400 block">({p.images?.length || 1} صور)</span>
+                    </div>
                   </div>
-                  <button onClick={() => deleteProduct(p.id)} className="text-red-500 p-2 hover:bg-red-50 rounded-lg">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex justify-between items-center border-t pt-2 text-xs font-bold">
+                    <button onClick={() => startEditProduct(p)} className="text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
+                      <Edit3 className="w-3.5 h-3.5" /> تعديل
+                    </button>
+                    <button onClick={() => deleteProduct(p.id)} className="text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
+                      <Trash2 className="w-3.5 h-3.5" /> حذف
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* 2. تبويب الفئات الدائرية */}
+        {/* 2. تبويب البانرات الإشهارية */}
+        {activeTab === 'banners' && (
+          <div className="p-6 space-y-6">
+            <div className="bg-rose-50/50 border border-rose-100 p-6 rounded-2xl">
+              <h3 className="text-base font-bold text-gray-800 mb-4">إضافة بانر إشهاري جديد للواجهة</h3>
+              <form onSubmit={handleAddBanner} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div>
+                  <label className="block font-bold mb-1">عنوان الإعلان *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="مثال: أفضل تخفيضات الموسم"
+                    value={bannerTitle}
+                    onChange={(e) => setBannerTitle(e.target.value)}
+                    className="w-full border rounded-xl p-3"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold mb-1">شارة علوية (اختياري)</label>
+                  <input
+                    type="text"
+                    placeholder="مثال: خصم 30% أو عرض خاص"
+                    value={bannerBadge}
+                    onChange={(e) => setBannerBadge(e.target.value)}
+                    className="w-full border rounded-xl p-3"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block font-bold mb-1">رابط صورة الإعلان الكبيرة (URL) *</label>
+                  <input
+                    type="url"
+                    required
+                    placeholder="https://..."
+                    value={bannerImage}
+                    onChange={(e) => setBannerImage(e.target.value)}
+                    className="w-full border rounded-xl p-3"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block font-bold mb-1">الوصف الشارح</label>
+                  <input
+                    type="text"
+                    placeholder="مثال: استمتعي بخصم مميز وتوصيل سريع لكافة الولايات"
+                    value={bannerSubtitle}
+                    onChange={(e) => setBannerSubtitle(e.target.value)}
+                    className="w-full border rounded-xl p-3"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <button type="submit" className="bg-rose-600 text-white font-bold py-3 px-6 rounded-xl">
+                    حفظ ونشر الإعلان
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {banners.map((b) => (
+                <div key={b.id} className="border rounded-2xl overflow-hidden flex bg-white shadow-sm">
+                  <img src={b.image} alt={b.title} className="w-32 h-32 object-cover shrink-0" />
+                  <div className="p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                      {b.badge && <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">{b.badge}</span>}
+                      <h4 className="font-bold text-xs text-gray-800 mt-1">{b.title}</h4>
+                      <p className="text-[11px] text-gray-500 line-clamp-1">{b.subtitle}</p>
+                    </div>
+                    <button onClick={() => deleteBanner(b.id)} className="text-xs text-red-600 font-bold flex items-center gap-1 hover:underline mt-2">
+                      <Trash2 className="w-3.5 h-3.5" /> حذف الإعلان
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 3. تبويب الطلبيات المتقدم مع تغيير الحالات */}
+        {activeTab === 'orders' && (
+          <div className="p-6">
+            <h3 className="text-base font-bold mb-4">قائمة طلبات الزبائن ({orders.length})</h3>
+            {orders.length === 0 ? (
+              <p className="text-xs text-gray-500 text-center py-8">لا توجد طلبات مسجلة حالياً</p>
+            ) : (
+              <div className="space-y-4">
+                {orders.map((o) => (
+                  <div key={o.id} className="border p-4 rounded-2xl text-xs space-y-3 bg-white shadow-sm">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
+                      <div>
+                        <span className="font-bold text-sm text-gray-900 block">{o.fullName} ({o.phone})</span>
+                        <span className="text-[10px] text-gray-400">{o.date}</span>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full font-bold text-[11px] ${
+                        o.status === 'مؤكد' ? 'bg-blue-100 text-blue-700' :
+                        o.status === 'جاري التوصيل' ? 'bg-amber-100 text-amber-700' :
+                        o.status === 'تم الاستلام' ? 'bg-emerald-100 text-emerald-700' :
+                        'bg-gray-100 text-gray-700'
+                      }`}>
+                        حالة الطلب: {o.status || 'قيد الانتظار'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-700">
+                      <div>المنتج المطلوبة: <b className="text-gray-900">{o.productName}</b> (الكمية: {o.quantity})</div>
+                      <div>عنوان الشحن: <b>{o.wilaya} - {o.baladiya}</b> ({o.shippingType})</div>
+                      <div className="text-rose-600 font-black text-sm">المبلغ الإجمالي: {o.grandTotal} د.ج</div>
+                    </div>
+
+                    {/* أزرار الإجراءات للطلبية */}
+                    <div className="flex flex-wrap items-center justify-between border-t pt-3 gap-2">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <button
+                          onClick={() => updateOrderStatus(o.id, 'مؤكد')}
+                          className="bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold px-3 py-1.5 rounded-xl flex items-center gap-1"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" /> مؤكد
+                        </button>
+                        <button
+                          onClick={() => updateOrderStatus(o.id, 'جاري التوصيل')}
+                          className="bg-amber-50 text-amber-600 hover:bg-amber-100 font-bold px-3 py-1.5 rounded-xl flex items-center gap-1"
+                        >
+                          <Truck className="w-3.5 h-3.5" /> جاري التوصيل
+                        </button>
+                        <button
+                          onClick={() => updateOrderStatus(o.id, 'تم الاستلام')}
+                          className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-bold px-3 py-1.5 rounded-xl flex items-center gap-1"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" /> تم الاستلام
+                        </button>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          if (window.confirm('هل أنت تأكد من رغبتك في حذف هذه الطلبية؟')) {
+                            deleteOrder(o.id);
+                          }
+                        }}
+                        className="text-red-500 hover:bg-red-50 font-bold px-3 py-1.5 rounded-xl flex items-center gap-1"
+                      >
+                        <XCircle className="w-3.5 h-3.5" /> حذف الطلب
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 4. تبويب الفئات الدائرية */}
         {activeTab === 'categories' && (
           <div className="p-6 space-y-6">
             <div className="bg-rose-50/50 border border-rose-100 p-6 rounded-2xl">
-              <h3 className="text-base font-bold text-gray-800 mb-4">إضافة فئة دائرية جديدة (هدايا، كوسمتيك، علب...)</h3>
+              <h3 className="text-base font-bold text-gray-800 mb-4">إضافة فئة دائرية جديدة</h3>
               <form onSubmit={handleAddCategory} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 <div>
                   <label className="block font-bold mb-1">اسم الفئة *</label>
@@ -319,7 +537,7 @@ export default function AdminDashboard({ onClose }) {
                 </div>
                 <div className="md:col-span-2">
                   <button type="submit" className="bg-rose-600 text-white font-bold py-2.5 px-6 rounded-xl">
-                    إضافة الفئة الدائرية
+                    إضافة الفئة
                   </button>
                 </div>
               </form>
@@ -339,7 +557,7 @@ export default function AdminDashboard({ onClose }) {
           </div>
         )}
 
-        {/* 3. تبويب الإعدادات والروابط */}
+        {/* 5. تبويب اللوجو واسم المتجر والروابط */}
         {activeTab === 'settings' && (
           <form onSubmit={handleSaveSettings} className="p-6 space-y-4 text-xs">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -352,6 +570,18 @@ export default function AdminDashboard({ onClose }) {
                   className="w-full border rounded-xl p-3"
                 />
               </div>
+
+              <div>
+                <label className="block font-bold mb-1">رابط صورة لوجو المحل (Logo URL)</label>
+                <input
+                  type="url"
+                  placeholder="https://... (اختياري، يظهر بجانب اسم المتجر)"
+                  value={settingsForm.logoUrl || ''}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, logoUrl: e.target.value })}
+                  className="w-full border rounded-xl p-3"
+                />
+              </div>
+
               <div>
                 <label className="block font-bold mb-1">رقم الهاتف للاتصال</label>
                 <input
@@ -361,6 +591,7 @@ export default function AdminDashboard({ onClose }) {
                   className="w-full border rounded-xl p-3"
                 />
               </div>
+
               <div>
                 <label className="block font-bold mb-1">رقم الواتساب (الصيغة الدولية 213...)</label>
                 <input
@@ -370,6 +601,7 @@ export default function AdminDashboard({ onClose }) {
                   className="w-full border rounded-xl p-3"
                 />
               </div>
+
               <div>
                 <label className="block font-bold mb-1">رابط صفحة الإنستغرام</label>
                 <input
@@ -379,6 +611,7 @@ export default function AdminDashboard({ onClose }) {
                   className="w-full border rounded-xl p-3"
                 />
               </div>
+
               <div>
                 <label className="block font-bold mb-1">رابط صفحة الفيسبوك</label>
                 <input
@@ -388,17 +621,9 @@ export default function AdminDashboard({ onClose }) {
                   className="w-full border rounded-xl p-3"
                 />
               </div>
-              <div>
-                <label className="block font-bold mb-1">البريد الإلكتروني للإشعارات</label>
-                <input
-                  type="email"
-                  value={settingsForm.email}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
-                  className="w-full border rounded-xl p-3"
-                />
-              </div>
+
               <div className="md:col-span-2">
-                <label className="block font-bold mb-1">نص الشريط الترويجي الإشهاري بأعلى الموقع</label>
+                <label className="block font-bold mb-1">نص الشريط الترويجي العلوي</label>
                 <input
                   type="text"
                   value={settingsForm.topAnnouncement}
@@ -407,17 +632,18 @@ export default function AdminDashboard({ onClose }) {
                 />
               </div>
             </div>
+
             <button type="submit" className="bg-rose-600 text-white font-bold py-3 px-8 rounded-xl">
-              حفظ وتحديث كل المعلومات
+              حفظ كافة الإعدادات واللوجو
             </button>
           </form>
         )}
 
-        {/* 4. تبويب الولايات وأسعار الشحن */}
+        {/* 6. تبويب الولايات */}
         {activeTab === 'wilayas' && (
           <div className="p-6 space-y-6">
             <div className="bg-rose-50/50 border border-rose-100 p-6 rounded-2xl">
-              <h3 className="text-base font-bold text-gray-800 mb-4">إضافة ولاية جديدة وسعر شحنها</h3>
+              <h3 className="text-base font-bold text-gray-800 mb-4">إضافة ولاية جديدة</h3>
               <form onSubmit={handleAddWilaya} className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                 <input
                   type="text"
@@ -468,29 +694,6 @@ export default function AdminDashboard({ onClose }) {
                 </div>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* 5. تبويب الطلبيات */}
-        {activeTab === 'orders' && (
-          <div className="p-6">
-            <h3 className="text-base font-bold mb-4">قائمة الطلبيات المسجلة ({orders.length})</h3>
-            {orders.length === 0 ? (
-              <p className="text-xs text-gray-500 text-center py-8">لا توجد طلبات مسجلة حالياً</p>
-            ) : (
-              <div className="space-y-3">
-                {orders.map((o) => (
-                  <div key={o.id} className="border p-4 rounded-xl text-xs space-y-1 bg-gray-50">
-                    <div className="flex justify-between font-bold text-rose-600">
-                      <span>الزبون: {o.fullName} ({o.phone})</span>
-                      <span>الإجمالي: {o.grandTotal} د.ج</span>
-                    </div>
-                    <div>المحتوى: <b>{o.productName}</b> (الكمية: {o.quantity})</div>
-                    <div>العنوان: {o.wilaya} - {o.baladiya} ({o.shippingType})</div>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         )}
 
