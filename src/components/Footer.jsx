@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
-import { Phone, Mail, Instagram, Facebook, Sparkles } from 'lucide-react';
+import { Phone, Mail, Instagram, Facebook, Sparkles, MapPin } from 'lucide-react';
 
 export default function Footer() {
   const { settings } = useStore();
@@ -15,12 +15,12 @@ export default function Footer() {
             <span className="text-xl font-black text-white">{settings.storeName || 'Cosmetique Abdelhak'}</span>
           </div>
           <p className="text-xs text-gray-400 leading-relaxed">
-            متجركم المتخصص في توفير أفضل مستحضرات التجميل، العطور، ومجموعات الهدايا الفاخرة بأعلى جودة مع شحن سريع لجميع الولايات.
+            متجركم المتخصص في توفير أفضل مستحضرات التجميل والعناية والهدايا الراقية بأسعار منافسة مع توصيل لـ 58 ولاية.
           </p>
         </div>
 
         <div>
-          <h4 className="text-sm font-bold text-white mb-3">تواصلوا معنا</h4>
+          <h4 className="text-sm font-bold text-white mb-3">تواصل معنا</h4>
           <div className="space-y-2 text-xs">
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-rose-500" />
@@ -32,11 +32,15 @@ export default function Footer() {
                 <span>{settings.email}</span>
               </div>
             )}
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-rose-500" />
+              <span>الجزائر</span>
+            </div>
           </div>
         </div>
 
         <div>
-          <h4 className="text-sm font-bold text-white mb-3">تابعونا على مواقع التواصل</h4>
+          <h4 className="text-sm font-bold text-white mb-3">تابعنا على التواصل الاجتماعي</h4>
           <div className="flex items-center gap-3">
             {settings.instagram && (
               <a href={settings.instagram} target="_blank" rel="noreferrer" className="bg-gray-800 p-2.5 rounded-xl text-rose-400 hover:bg-rose-600 hover:text-white transition">
@@ -54,7 +58,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
-        © {new Date().getFullYear()} {settings.storeName}. جميع الحقوق محفوظة.
+        جميع الحقوق محفوظة © {settings.storeName} {new Date().getFullYear()}
       </div>
     </footer>
   );
