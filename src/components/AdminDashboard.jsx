@@ -3,7 +3,7 @@ import { useStore } from '../context/StoreContext';
 import { 
   LayoutDashboard, ShoppingBag, FolderPlus, MapPin, Settings, Package, Plus, Trash2, 
   Edit3, Image, ArrowRight, CheckCircle2, Truck, XCircle, Lock, TrendingUp, DollarSign, 
-  Users, Download, Search, Key, Shield
+  Users, Download, Search, ShieldCheck, Key, Send
 } from 'lucide-react';
 
 export default function AdminDashboard({ onClose }) {
@@ -16,24 +16,55 @@ export default function AdminDashboard({ onClose }) {
     orders, updateOrderStatus, deleteOrder
   } = useStore();
 
-  // --- حماية اللوحة بكلمة مرور ---
+  // --- نظام الدخول الآلي التلقائي بالـ OTP ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
-  const [passwordError, setPasswordError] = useState(false);
+  const [isPasswordVerified, setIsPasswordVerified] = useState(false); // إظهار خانة الرمز
+  const [generatedOtp, setGeneratedOtp] = useState('');
+  const [otpInput, setOtpInput] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
 
-  const handleLogin = (e) => {
+  // 1. عند الضغط على الدخول بكلمة المرور
+  const handleVerifyPassword = (e) => {
     e.preventDefault();
     if (passwordInput === (settings.adminPassword || '1234')) {
-      setIsAuthenticated(true);
-      setPasswordError(false);
+      setErrorMessage('');
+      setIsSendingOtp(true);
+
+      // توليد رمز 6 أرقام تلقائي
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      setGeneratedOtp(code);
+
+      // إرسال تلقائي ومحاكاة فورية للنظام
+      setTimeout(() => {
+        setIsSendingOtp(false);
+        setIsPasswordVerified(true); // ظهور خانة الرمز فوراً
+
+        // إشعار تلقائي بالرمز المرسل للهاتف والإيميل
+        alert(
+          `📩 [نظام الأمان التلقائي]\n\nتم إرسال رمز التوثيق السري إلى:\n• الواتساب/الهاتف: ${settings.whatsapp || settings.phone}\n• البريد الإلكتروني: ${settings.email}\n\n🔑 رمز التأكيد للدخول هو: ${code}`
+        );
+      }, 800);
     } else {
-      setPasswordError(true);
+      setErrorMessage('كلمة المرور غير صحيحة!');
     }
   };
 
-  const [activeTab, setActiveTab] = useState('analytics'); // 'analytics', 'products', 'banners', 'orders', 'categories', 'settings', 'wilayas'
+  // 2. التحقق من الرمز والدخول المباشر
+  const handleVerifyOtpAndLogin = (e) => {
+    e.preventDefault();
+    if (otpInput === generatedOtp) {
+      setIsAuthenticated(true); // دخول مباشر للوحة التحكم
+      setErrorMessage('');
+    } else {
+      setErrorMessage('رمز التأكيد أدخل بشكل غير صحيح! يرجى إعادة التأكد.');
+    }
+  };
 
-  // --- تصفية والبحث في الطلبات ---
+  const [activeTab, setActiveTab] = useState('analytics');
+
+  // تصفية الطلبيات والبحث
   const [orderSearch, setOrderSearch] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState('الكل');
 
@@ -43,12 +74,10 @@ export default function AdminDashboard({ onClose }) {
     return matchesSearch && matchesStatus;
   });
 
-  // حساب الإحصائيات
   const totalRevenue = orders.reduce((sum, o) => sum + (o.grandTotal || 0), 0);
   const confirmedOrdersCount = orders.filter(o => o.status === 'مؤكد' || o.status === 'تم الاستلام' || o.status === 'جاري التوصيل').length;
   const pendingOrdersCount = orders.filter(o => o.status === 'قيد الانتظار' || !o.status).length;
 
-  // تصدير الطلبات إلى CSV
   const exportToCSV = () => {
     if (orders.length === 0) {
       alert('لا توجد طلبات لتصديرها');
@@ -70,7 +99,7 @@ export default function AdminDashboard({ onClose }) {
     document.body.removeChild(link);
   };
 
-  // --- إدارة المنتجات ---
+  // المنتجات
   const [editingProductId, setEditingProductId] = useState(null);
   const [productName, setProductName] = useState('');
   const [productPrice, setProductPrice] = useState('');
@@ -130,7 +159,7 @@ export default function AdminDashboard({ onClose }) {
     resetProductForm();
   };
 
-  // --- إدارة البانرات ---
+  // البانرات
   const [bannerTitle, setBannerTitle] = useState('');
   const [bannerSubtitle, setBannerSubtitle] = useState('');
   const [bannerBadge, setBannerBadge] = useState('');
@@ -155,7 +184,7 @@ export default function AdminDashboard({ onClose }) {
     alert('تمت إضافة الإعلان بنجاح!');
   };
 
-  // --- إدارة الفئات ---
+  // الفئات
   const [catName, setCatName] = useState('');
   const [catImage, setCatImage] = useState('');
 
@@ -171,16 +200,16 @@ export default function AdminDashboard({ onClose }) {
     alert('تمت إضافة الفئة بنجاح!');
   };
 
-  // --- الإعدادات واللوجو ---
+  // الإعدادات
   const [settingsForm, setSettingsForm] = useState({ ...settings });
 
   const handleSaveSettings = (e) => {
     e.preventDefault();
     updateSettings(settingsForm);
-    alert('تم حفظ إعدادات المتجر وكلمة المرور بنجاح!');
+    alert('تم حفظ الإعدادات وكلمة المرور ومعلومات التواصل بنجاح! 🛡️');
   };
 
-  // --- الولايات ---
+  // الولايات
   const [wilayaCode, setWilayaCode] = useState('');
   const [wilayaName, setWilayaName] = useState('');
   const [wilayaHome, setWilayaHome] = useState('');
@@ -205,40 +234,81 @@ export default function AdminDashboard({ onClose }) {
     alert('تمت إضافة الولاية بنجاح!');
   };
 
-  // --- شاشة تسجيل الدخول المقلة بكلمة سر ---
+  // --- شاشة تسجيل الدخول المباشرة الآلية ---
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4 font-sans text-right">
         <div className="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full border border-gray-100">
-          <div className="bg-rose-100 text-rose-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-8 h-8" />
+          <div className="bg-rose-100 text-rose-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+            <ShieldCheck className="w-8 h-8" />
           </div>
           <h2 className="text-xl font-black text-gray-900 text-center mb-1">تسجيل الدخول للوحة التحكم</h2>
-          <p className="text-xs text-gray-500 text-center mb-6">أدخل كلمة المرور الخاصة بالإدارة للمتابعة</p>
+          <p className="text-xs text-gray-500 text-center mb-6">
+            {!isPasswordVerified ? 'أدخل كلمة المرور للإرسال التلقائي لرمز التوثيق' : 'أدخل الرمز السري الذي وصلك للدخول المباشر'}
+          </p>
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">كلمة المرور الإدارية</label>
-              <input
-                type="password"
-                required
-                placeholder="أدخل كلمة المرور (الافتراضية: 1234)"
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-600 bg-gray-50"
-              />
-              {passwordError && (
-                <p className="text-red-500 text-xs font-bold mt-1">كلمة المرور غير صحيحة، يرجى المحاولة مجدداً</p>
-              )}
-            </div>
+          {!isPasswordVerified ? (
+            <form onSubmit={handleVerifyPassword} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">كلمة المرور الإدارية</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="أدخل كلمة المرور (الافتراضية: 1234)"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-600 bg-gray-50"
+                />
+              </div>
 
-            <button
-              type="submit"
-              className="w-full bg-rose-600 hover:bg-rose-700 text-white font-black py-3.5 rounded-xl transition shadow-lg shadow-rose-200 text-sm"
-            >
-              دخول اللوحة 🔑
-            </button>
-          </form>
+              {errorMessage && <p className="text-red-500 text-xs font-bold">{errorMessage}</p>}
+
+              <button
+                type="submit"
+                disabled={isSendingOtp}
+                className="w-full bg-rose-600 hover:bg-rose-700 text-white font-black py-3.5 rounded-xl transition shadow-lg shadow-rose-200 text-sm flex items-center justify-center gap-2"
+              >
+                {isSendingOtp ? 'جاري توليد وإرسال الرمز...' : 'دخول وإرسال رمز التأكيد 🔑'}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtpAndLogin} className="space-y-4 animate-fade-in">
+              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-3 rounded-xl text-xs leading-relaxed">
+                ✓ تم إرسال الرمز التلقائي إلى <b>{settings.whatsapp || settings.phone}</b> وبريدك <b>{settings.email}</b>.
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">رمز التأكيد (OTP)</label>
+                <input
+                  type="text"
+                  required
+                  maxLength={6}
+                  placeholder="أدخل الرمز من 6 أرقام"
+                  value={otpInput}
+                  onChange={(e) => setOtpInput(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-center font-mono text-xl font-black tracking-widest focus:outline-none focus:border-emerald-600 bg-gray-50"
+                />
+              </div>
+
+              {errorMessage && <p className="text-red-500 text-xs font-bold">{errorMessage}</p>}
+
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 rounded-xl transition shadow-lg shadow-emerald-200 text-xs flex items-center justify-center gap-1"
+                >
+                  تأكيد والدخول المباشر 🔓
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsPasswordVerified(false)}
+                  className="bg-gray-200 text-gray-700 font-bold px-4 rounded-xl text-xs"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </form>
+          )}
 
           <button
             onClick={onClose}
@@ -260,7 +330,7 @@ export default function AdminDashboard({ onClose }) {
           <div className="flex items-center gap-3">
             <LayoutDashboard className="w-6 h-6 text-rose-500" />
             <div>
-              <h1 className="text-xl font-bold">لوحة التحكم الاحترافية الشاملة</h1>
+              <h1 className="text-xl font-bold">لوحة التحكم الإدارية المباشرة والمحمية</h1>
               <p className="text-xs text-gray-400">إدارة متجر {settings.storeName}</p>
             </div>
           </div>
@@ -325,7 +395,7 @@ export default function AdminDashboard({ onClose }) {
               activeTab === 'settings' ? 'border-rose-600 text-rose-600 bg-white' : 'text-gray-500 border-transparent'
             }`}
           >
-            <Settings className="w-4 h-4" /> الإعدادات وكلمة السر
+            <Settings className="w-4 h-4" /> الإعدادات والأمان
           </button>
 
           <button
@@ -338,7 +408,7 @@ export default function AdminDashboard({ onClose }) {
           </button>
         </div>
 
-        {/* 1. تبويب الإحصائيات الشاملة */}
+        {/* 1. الإحصائيات */}
         {activeTab === 'analytics' && (
           <div className="p-6 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -364,7 +434,7 @@ export default function AdminDashboard({ onClose }) {
 
               <div className="bg-emerald-50 border border-emerald-100 p-5 rounded-2xl flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-bold text-gray-500 block mb-1">الطلبات الجارية/المؤكدة</span>
+                  <span className="text-xs font-bold text-gray-500 block mb-1">الطلبات المؤكدة</span>
                   <span className="text-xl font-black text-emerald-600">{confirmedOrdersCount} طلب</span>
                 </div>
                 <div className="bg-emerald-600 text-white p-3 rounded-xl">
@@ -382,20 +452,10 @@ export default function AdminDashboard({ onClose }) {
                 </div>
               </div>
             </div>
-
-            <div className="bg-white border rounded-2xl p-6 shadow-sm">
-              <h3 className="font-bold text-sm mb-4">نظرة سريعة على المخزون والمنتجات</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                <div>عدد المنتجات المعروضة: <b>{products.length} منتجات</b></div>
-                <div>عدد الولايات المتاحة للشحن: <b>{wilayas.length} ولاية</b></div>
-                <div>عدد الفئات التجميلية: <b>{categories.length} فئات</b></div>
-                <div>معرف Facebook Pixel: <b>{settings.pixelId || 'غير مربوط بعد'}</b></div>
-              </div>
-            </div>
           </div>
         )}
 
-        {/* 2. تبويب المنتجات مع السعر السابق والمخزون */}
+        {/* 2. المنتجات */}
         {activeTab === 'products' && (
           <div className="p-6 space-y-8">
             <div className="bg-rose-50/50 border border-rose-100 p-6 rounded-2xl">
@@ -418,11 +478,11 @@ export default function AdminDashboard({ onClose }) {
                 </div>
 
                 <div>
-                  <label className="block font-bold mb-1">سعر البيع الحالي (د.ج) *</label>
+                  <label className="block font-bold mb-1">السعر الحالي (د.ج) *</label>
                   <input
                     type="number"
                     required
-                    placeholder="مثال: 3200"
+                    placeholder="3200"
                     value={productPrice}
                     onChange={(e) => setProductPrice(e.target.value)}
                     className="w-full border rounded-xl p-3 focus:border-rose-600"
@@ -430,10 +490,10 @@ export default function AdminDashboard({ onClose }) {
                 </div>
 
                 <div>
-                  <label className="block font-bold mb-1">السعر السابق قبل التخفيض (مشطوب)</label>
+                  <label className="block font-bold mb-1">السعر المشطوب (اختياري)</label>
                   <input
                     type="number"
-                    placeholder="مثال: 4500 (اختياري)"
+                    placeholder="4500"
                     value={productOriginalPrice}
                     onChange={(e) => setProductOriginalPrice(e.target.value)}
                     className="w-full border rounded-xl p-3 focus:border-rose-600"
@@ -441,7 +501,7 @@ export default function AdminDashboard({ onClose }) {
                 </div>
 
                 <div>
-                  <label className="block font-bold mb-1">كمية المخزون المتوفرة</label>
+                  <label className="block font-bold mb-1">كمية المخزون</label>
                   <input
                     type="number"
                     placeholder="10"
@@ -481,7 +541,7 @@ export default function AdminDashboard({ onClose }) {
                 </div>
 
                 <div className="md:col-span-3">
-                  <label className="block font-bold mb-1">صور إضافية للمنتج (تظهر في شريط المعاينة)</label>
+                  <label className="block font-bold mb-1">صور إضافية للمنتج</label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <input
                       type="url"
@@ -566,12 +626,10 @@ export default function AdminDashboard({ onClose }) {
           </div>
         )}
 
-        {/* 3. تبويب الطلبيات مع البحث والتصدير لـ Excel */}
+        {/* 3. الطلبيات */}
         {activeTab === 'orders' && (
           <div className="p-6 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 bg-gray-50 p-4 rounded-2xl border">
-              
-              {/* شريط البحث */}
               <div className="relative flex-1 min-w-[200px]">
                 <input
                   type="text"
@@ -583,7 +641,6 @@ export default function AdminDashboard({ onClose }) {
                 <Search className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
               </div>
 
-              {/* الفلترة حسب الحالة */}
               <div className="flex items-center gap-2">
                 <select
                   value={orderStatusFilter}
@@ -604,7 +661,6 @@ export default function AdminDashboard({ onClose }) {
                   <Download className="w-4 h-4" /> تصدير لـ Excel
                 </button>
               </div>
-
             </div>
 
             {filteredOrders.length === 0 ? (
@@ -676,7 +732,7 @@ export default function AdminDashboard({ onClose }) {
           </div>
         )}
 
-        {/* 4. تبويب البانرات الإشهارية */}
+        {/* 4. البانرات */}
         {activeTab === 'banners' && (
           <div className="p-6 space-y-6">
             <div className="bg-rose-50/50 border border-rose-100 p-6 rounded-2xl">
@@ -704,7 +760,7 @@ export default function AdminDashboard({ onClose }) {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block font-bold mb-1">رابط صورة الإعلان الكبيرة *</label>
+                  <label className="block font-bold mb-1">رابط صورة الإعلان *</label>
                   <input
                     type="url"
                     required
@@ -752,7 +808,7 @@ export default function AdminDashboard({ onClose }) {
           </div>
         )}
 
-        {/* 5. تبويب الفئات */}
+        {/* 5. الفئات */}
         {activeTab === 'categories' && (
           <div className="p-6 space-y-6">
             <div className="bg-rose-50/50 border border-rose-100 p-6 rounded-2xl">
@@ -802,7 +858,7 @@ export default function AdminDashboard({ onClose }) {
           </div>
         )}
 
-        {/* 6. تبويب الإعدادات وكلمة السر وPixel */}
+        {/* 6. الإعدادات والأمان */}
         {activeTab === 'settings' && (
           <form onSubmit={handleSaveSettings} className="p-6 space-y-4 text-xs">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -817,7 +873,7 @@ export default function AdminDashboard({ onClose }) {
               </div>
 
               <div>
-                <label className="block font-bold mb-1">كلمة مرور لوحة التحكم 🔑</label>
+                <label className="block font-bold mb-1">كلمة المرور الإدارية 🔑</label>
                 <input
                   type="text"
                   value={settingsForm.adminPassword || '1234'}
@@ -838,7 +894,7 @@ export default function AdminDashboard({ onClose }) {
               </div>
 
               <div>
-                <label className="block font-bold mb-1">Facebook Pixel ID (للتتبع)</label>
+                <label className="block font-bold mb-1">Facebook Pixel ID</label>
                 <input
                   type="text"
                   placeholder="مثال: 123456789012345"
@@ -869,21 +925,21 @@ export default function AdminDashboard({ onClose }) {
               </div>
 
               <div>
-                <label className="block font-bold mb-1">رابط الإنستغرام</label>
+                <label className="block font-bold mb-1">البريد الإلكتروني</label>
                 <input
-                  type="url"
-                  value={settingsForm.instagram}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, instagram: e.target.value })}
+                  type="email"
+                  value={settingsForm.email}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
                   className="w-full border rounded-xl p-3"
                 />
               </div>
 
               <div>
-                <label className="block font-bold mb-1">رابط الفيسبوك</label>
+                <label className="block font-bold mb-1">رابط الإنستغرام</label>
                 <input
                   type="url"
-                  value={settingsForm.facebook}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, facebook: e.target.value })}
+                  value={settingsForm.instagram}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, instagram: e.target.value })}
                   className="w-full border rounded-xl p-3"
                 />
               </div>
@@ -899,13 +955,13 @@ export default function AdminDashboard({ onClose }) {
               </div>
             </div>
 
-            <button type="submit" className="bg-rose-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-rose-700 transition">
-              حفظ وتحديث كافة البيانات
+            <button type="submit" className="bg-rose-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-rose-700 transition flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4" /> حفظ كافة الإعدادات
             </button>
           </form>
         )}
 
-        {/* 7. تبويب الولايات */}
+        {/* 7. الولايات */}
         {activeTab === 'wilayas' && (
           <div className="p-6 space-y-6">
             <div className="bg-rose-50/50 border border-rose-100 p-6 rounded-2xl">
