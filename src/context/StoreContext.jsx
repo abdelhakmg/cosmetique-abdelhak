@@ -2,158 +2,114 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const StoreContext = createContext();
 
-const DEFAULT_PRODUCTS = [
+const INITIAL_PRODUCTS = [
   {
     id: '1',
-    name: 'سيروم العناية بالبشرة',
-    description: 'سيروم مغذي ومجدد للبشرة لمظهر نضر ومشرق',
-    price: 3500,
+    name: 'سيروم العناية بالبشرة الإحترافي',
+    price: 3200,
     category: 'العناية بالبشرة',
+    description: 'سيروم مغذي ومجدد لخلايا البشرة يمنحك نضارة فورية وإشراقة تدوم طويلاً.',
     image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=600',
     rating: 4.9
   },
   {
     id: '2',
-    name: 'أحمر شفاه فاخر',
-    description: 'أحمر شفاه يدوم طويلاً بلمسة مطفية وجذابة',
-    price: 1800,
-    category: 'مكياج',
-    image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&q=80&w=600',
+    name: 'مجموعة المكياج المتكاملة',
+    price: 5800,
+    category: 'المكياج',
+    description: 'تشكيلة راقية ومميزة من مستحضرات التجميل العصرية لتألق يومي ساحر.',
+    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=600',
     rating: 4.8
-  },
-  {
-    id: '3',
-    name: 'عطر نسائي راقي',
-    description: 'عطر مميز بنفحات الزهور الفواحة والمسك',
-    price: 5200,
-    category: 'العطور',
-    image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=600',
-    rating: 5.0
   }
 ];
 
-const DEFAULT_CATEGORIES = ['الكل', 'العناية بالبشرة', 'مكياج', 'العطور', 'العناية بالشعر'];
+// بانرات إشهارية افتراضية
+const INITIAL_BANNERS = [
+  {
+    id: 'b1',
+    title: 'أفضل تخفيضات الموسم!',
+    subtitle: 'استفيدي من خصم يصل إلى 35% على منتجات العناية بالبشرة المختارة.',
+    badge: 'وداعاً للصيف !',
+    image: 'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&q=80&w=1200'
+  },
+  {
+    id: 'b2',
+    title: 'عروض حصرية لفترة محدودة',
+    subtitle: 'توصيل مجاني لجميع الولايات عند الشراء بقيمة 6000 د.ج أو أكثر.',
+    badge: 'عرض خاص 🏷️',
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&q=80&w=1200'
+  }
+];
 
-export const StoreProvider = ({ children }) => {
-  const [products] = useState(() => {
-    try {
-      const saved = localStorage.getItem('cos_products');
-      return saved ? JSON.parse(saved) : DEFAULT_PRODUCTS;
-    } catch {
-      return DEFAULT_PRODUCTS;
-    }
+export function StoreProvider({ children }) {
+  const [products, setProducts] = useState(() => {
+    const saved = localStorage.getItem('products');
+    return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
   });
 
-  const [cart, setCart] = useState(() => {
-    try {
-      const saved = localStorage.getItem('cos_cart');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
+  const [banners, setBanners] = useState(() => {
+    const saved = localStorage.getItem('banners');
+    return saved ? JSON.parse(saved) : INITIAL_BANNERS;
   });
 
   const [orders, setOrders] = useState(() => {
-    try {
-      const saved = localStorage.getItem('cos_orders');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
+    const saved = localStorage.getItem('orders');
+    return saved ? JSON.parse(saved) : [];
   });
 
-  const [categories] = useState(DEFAULT_CATEGORIES);
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('الكل');
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [lastCreatedOrder, setLastCreatedOrder] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    localStorage.setItem('cos_cart', JSON.stringify(cart));
-  }, [cart]);
+    localStorage.setItem('products', JSON.stringify(products));
+  }, [products]);
 
   useEffect(() => {
-    localStorage.setItem('cos_orders', JSON.stringify(orders));
+    localStorage.setItem('banners', JSON.stringify(banners));
+  }, [banners]);
+
+  useEffect(() => {
+    localStorage.setItem('orders', JSON.stringify(orders));
   }, [orders]);
 
-  const addToCart = (product, quantity = 1) => {
-    setCart((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
-        );
-      }
-      return [...prev, { ...product, quantity }];
-    });
-    setIsCartOpen(true);
+  // إضافة وحذف المنتجات والبانرات
+  const addBanner = (newBanner) => {
+    setBanners((prev) => [{ ...newBanner, id: Date.now().toString() }, ...prev]);
   };
 
-  const removeFromCart = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
+  const deleteBanner = (id) => {
+    setBanners((prev) => prev.filter((b) => b.id !== id));
   };
-
-  const updateCartQuantity = (id, delta) => {
-    setCart((prev) =>
-      prev
-        .map((item) => {
-          if (item.id === id) {
-            const newQty = item.quantity + delta;
-            return newQty > 0 ? { ...item, quantity: newQty } : null;
-          }
-          return item;
-        })
-        .filter(Boolean)
-    );
-  };
-
-  const clearCart = () => setCart([]);
 
   const createOrder = (orderData) => {
     const newOrder = {
-      id: `ORD-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      status: 'NEW',
-      items: [...cart],
-      ...orderData
+      ...orderData,
+      id: Date.now().toString(),
+      date: new Date().toLocaleDateString('ar-DZ'),
+      status: 'قيد الانتظار'
     };
     setOrders((prev) => [newOrder, ...prev]);
-    setLastCreatedOrder(newOrder);
-    clearCart();
-    setIsCheckoutOpen(false);
-    return newOrder;
   };
-
-  const cartSubtotal = cart.reduce((sum, item) => sum + Number(item.price || 0) * item.quantity, 0);
 
   return (
     <StoreContext.Provider
       value={{
         products,
-        categories,
-        cart,
-        addToCart,
-        removeFromCart,
-        updateCartQuantity,
-        clearCart,
+        setProducts,
+        banners,
+        addBanner,
+        deleteBanner,
         orders,
         createOrder,
-        lastCreatedOrder,
-        searchQuery,
-        setSearchQuery,
         selectedCategory,
         setSelectedCategory,
-        isCartOpen,
-        setIsCartOpen,
-        isCheckoutOpen,
-        setIsCheckoutOpen,
-        cartSubtotal
+        searchQuery,
+        setSearchQuery
       }}
     >
       {children}
     </StoreContext.Provider>
   );
-};
+}
 
 export const useStore = () => useContext(StoreContext);
