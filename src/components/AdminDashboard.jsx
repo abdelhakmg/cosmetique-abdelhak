@@ -3,7 +3,7 @@ import { useStore } from '../context/StoreContext';
 import { 
   LayoutDashboard, ShoppingBag, FolderPlus, MapPin, Settings, Package, Plus, Trash2, 
   Edit3, Image, ArrowRight, CheckCircle2, Truck, XCircle, Lock, TrendingUp, DollarSign, 
-  Users, Download, Search, ShieldCheck, Key
+  Users, Download, Search, ShieldCheck
 } from 'lucide-react';
 
 export default function AdminDashboard({ onClose }) {
@@ -16,52 +16,18 @@ export default function AdminDashboard({ onClose }) {
     orders, updateOrderStatus, deleteOrder
   } = useStore();
 
-  // --- نظام الدخول الآلي المعتمد على إعدادات المتجر ---
+  // --- نظام الدخول المباشر الآمن بكلمة المرور ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
-  const [isPasswordVerified, setIsPasswordVerified] = useState(false);
-  const [generatedOtp, setGeneratedOtp] = useState('');
-  const [otpInput, setOtpInput] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
 
-  // 1. التحقق من كلمة المرور وإرسال الرمز للواتساب/الإيميل الموجود في الإعدادات
-  const handleVerifyPassword = (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     if (passwordInput === (settings.adminPassword || '1234')) {
-      setErrorMessage('');
-      setIsSendingOtp(true);
-
-      // توليد رمز 6 أرقام
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
-      setGeneratedOtp(code);
-
-      // سحب الإيميل ورقم الواتساب الحاليين من الإعدادات
-      const targetPhone = settings.whatsapp || settings.phone || 'غير مسجل';
-      const targetEmail = settings.email || 'غير مسجل';
-
-      setTimeout(() => {
-        setIsSendingOtp(false);
-        setIsPasswordVerified(true);
-
-        // إشعار موجه للرقم والإيميل الصحيحين المعرفين في الداشبورد
-        alert(
-          `📩 [نظام الأمان المربوط بالمتجر]\n\nتم إرسال رمز التوثيق السري ديناميكياً إلى:\n• رقم الواتساب/الهاتف (من الإعدادات): ${targetPhone}\n• البريد الإلكتروني (من الإعدادات): ${targetEmail}\n\n🔑 رمز التأكيد للدخول هو: ${code}`
-        );
-      }, 800);
-    } else {
-      setErrorMessage('كلمة المرور غير صحيحة!');
-    }
-  };
-
-  // 2. التحقق من الرمز والدخول
-  const handleVerifyOtpAndLogin = (e) => {
-    e.preventDefault();
-    if (otpInput === generatedOtp) {
       setIsAuthenticated(true);
       setErrorMessage('');
     } else {
-      setErrorMessage('رمز التأكيد خطأ! يرجى إدخال الرمز الصحيح.');
+      setErrorMessage('كلمة المرور غير صحيحة!');
     }
   };
 
@@ -209,7 +175,7 @@ export default function AdminDashboard({ onClose }) {
   const handleSaveSettings = (e) => {
     e.preventDefault();
     updateSettings(settingsForm);
-    alert('تم حفظ الإعدادات، البريد، ورقم الواتساب بنجاح! سيتم اعتمادها في عمليات التحقق القادمة 🛡️');
+    alert('تم حفظ الإعدادات وكلمة المرور ومعلومات الاتصال بنجاح! 🛡️');
   };
 
   // الولايات
@@ -237,83 +203,39 @@ export default function AdminDashboard({ onClose }) {
     alert('تمت إضافة الولاية بنجاح!');
   };
 
-  // --- شاشة تسجيل الدخول المرتبطة بالبيانات المدخلة في الإعدادات ---
+  // --- شاشة تسجيل الدخول المباشرة ---
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4 font-sans text-right">
         <div className="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full border border-gray-100">
           <div className="bg-rose-100 text-rose-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-            <ShieldCheck className="w-8 h-8" />
+            <Lock className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-black text-gray-900 text-center mb-1">تسجيل الدخول الآمن</h2>
-          <p className="text-xs text-gray-500 text-center mb-6">
-            {!isPasswordVerified ? 'أدخل كلمة المرور لإرسال الرمز للبريد والواتساب المسجلين' : 'أدخل الرمز السري الذي وصلك للدخول'}
-          </p>
+          <h2 className="text-xl font-black text-gray-900 text-center mb-1">تسجيل الدخول للوحة التحكم</h2>
+          <p className="text-xs text-gray-500 text-center mb-6">أدخل كلمة المرور الإدارية للوصول للمتجر</p>
 
-          {!isPasswordVerified ? (
-            <form onSubmit={handleVerifyPassword} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">كلمة المرور الإدارية</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="أدخل كلمة المرور"
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-600 bg-gray-50"
-                />
-              </div>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">كلمة المرور</label>
+              <input
+                type="password"
+                required
+                placeholder="أدخل كلمة المرور (الافتراضية: 1234)"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-600 bg-gray-50"
+              />
+            </div>
 
-              {errorMessage && <p className="text-red-500 text-xs font-bold">{errorMessage}</p>}
+            {errorMessage && <p className="text-red-500 text-xs font-bold">{errorMessage}</p>}
 
-              <button
-                type="submit"
-                disabled={isSendingOtp}
-                className="w-full bg-rose-600 hover:bg-rose-700 text-white font-black py-3.5 rounded-xl transition shadow-lg shadow-rose-200 text-sm flex items-center justify-center gap-2"
-              >
-                {isSendingOtp ? 'جاري الإرسال للإيميل والواتساب...' : 'دخول وإرسال الرمز للإيميل والواتساب 🔑'}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleVerifyOtpAndLogin} className="space-y-4">
-              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-3 rounded-xl text-xs leading-relaxed space-y-1">
-                <div>✓ تم إرسال الرمز إلى:</div>
-                <div>• الإيميل: <b>{settings.email}</b></div>
-                <div>• الواتساب: <b>{settings.whatsapp || settings.phone}</b></div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">رمز التأكيد (OTP)</label>
-                <input
-                  type="text"
-                  required
-                  maxLength={6}
-                  placeholder="أدخل الرمز من 6 أرقام"
-                  value={otpInput}
-                  onChange={(e) => setOtpInput(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-center font-mono text-xl font-black tracking-widest focus:outline-none focus:border-emerald-600 bg-gray-50"
-                />
-              </div>
-
-              {errorMessage && <p className="text-red-500 text-xs font-bold">{errorMessage}</p>}
-
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 rounded-xl transition shadow-lg shadow-emerald-200 text-xs flex items-center justify-center gap-1"
-                >
-                  تأكيد والدخول المباشر 🔓
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsPasswordVerified(false)}
-                  className="bg-gray-200 text-gray-700 font-bold px-4 rounded-xl text-xs"
-                >
-                  إلغاء
-                </button>
-              </div>
-            </form>
-          )}
+            <button
+              type="submit"
+              className="w-full bg-rose-600 hover:bg-rose-700 text-white font-black py-3.5 rounded-xl transition shadow-lg shadow-rose-200 text-sm flex items-center justify-center gap-2"
+            >
+              دخول للوحة التحكم 🔓
+            </button>
+          </form>
 
           <button
             onClick={onClose}
@@ -335,7 +257,7 @@ export default function AdminDashboard({ onClose }) {
           <div className="flex items-center gap-3">
             <LayoutDashboard className="w-6 h-6 text-rose-500" />
             <div>
-              <h1 className="text-xl font-bold">لوحة التحكم الإدارية الشاملة</h1>
+              <h1 className="text-xl font-bold">لوحة التحكم الإدارية</h1>
               <p className="text-xs text-gray-400">إدارة متجر {settings.storeName}</p>
             </div>
           </div>
@@ -863,13 +785,9 @@ export default function AdminDashboard({ onClose }) {
           </div>
         )}
 
-        {/* 6. الإعدادات والربط المباشر */}
+        {/* 6. الإعدادات */}
         {activeTab === 'settings' && (
           <form onSubmit={handleSaveSettings} className="p-6 space-y-4 text-xs">
-            <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-xl mb-4 leading-relaxed">
-              ℹ️ <b>ملاحظة هامة للأمان:</b> البريد الإلكتروني ورقم الواتساب المدخلان أدناه هما اللذان يعتمد عليهما النظام تلقائياً لإرسال رمز التحقق (OTP) عند محاولة الدخول للوحة التحكم في كل مرة!
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block font-bold mb-1">اسم المتجر</label>
@@ -892,24 +810,22 @@ export default function AdminDashboard({ onClose }) {
               </div>
 
               <div>
-                <label className="block font-bold mb-1">البريد الإلكتروني للإشعارات والتحقق 📧 *</label>
+                <label className="block font-bold mb-1">البريد الإلكتروني للإشعارات</label>
                 <input
                   type="email"
-                  required
                   value={settingsForm.email || ''}
                   onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
-                  className="w-full border border-blue-300 rounded-xl p-3 bg-blue-50/20"
+                  className="w-full border rounded-xl p-3"
                 />
               </div>
 
               <div>
-                <label className="block font-bold mb-1">رقم الواتساب للتحقق (مثال: 213550875580) 📱 *</label>
+                <label className="block font-bold mb-1">رقم الواتساب (213...)</label>
                 <input
                   type="text"
-                  required
                   value={settingsForm.whatsapp || ''}
                   onChange={(e) => setSettingsForm({ ...settingsForm, whatsapp: e.target.value })}
-                  className="w-full border border-blue-300 rounded-xl p-3 bg-blue-50/20"
+                  className="w-full border rounded-xl p-3"
                 />
               </div>
 
@@ -967,7 +883,7 @@ export default function AdminDashboard({ onClose }) {
             </div>
 
             <button type="submit" className="bg-rose-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-rose-700 transition flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4" /> حفظ واعتماد الإعدادات والبريد ورقم الواتساب
+              <ShieldCheck className="w-4 h-4" /> حفظ الإعدادات
             </button>
           </form>
         )}
