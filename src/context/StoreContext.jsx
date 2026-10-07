@@ -27,6 +27,8 @@ const INITIAL_SETTINGS = {
   instagram: 'https://instagram.com',
   facebook: 'https://facebook.com',
   email: 'contact@cosmetique-abdelhak.dz',
+  adminPassword: '1234',
+  pixelId: '',
   topAnnouncement: 'توصيل سريع لجميع 58 ولاية 🇩🇿 - الدفع يداً بيد عند الاستلام'
 };
 
@@ -45,6 +47,8 @@ const INITIAL_PRODUCTS = [
     id: '1',
     name: 'سيروم العناية بالبشرة الإحترافي',
     price: 3200,
+    originalPrice: 4200,
+    stock: 15,
     category: 'كوسمتيك',
     description: 'سيروم مغذي ومجدد لخلايا البشرة يمنحك نضارة فورية وإشراقة تدوم طويلاً.',
     images: [
@@ -56,6 +60,8 @@ const INITIAL_PRODUCTS = [
     id: '2',
     name: 'عطر نسائي فاخر',
     price: 4500,
+    originalPrice: 5500,
+    stock: 8,
     category: 'عطور',
     description: 'عطر ساحر برائحة الورود الطبيعية والمسك الفاخر يدوم طويلاً.',
     images: [
