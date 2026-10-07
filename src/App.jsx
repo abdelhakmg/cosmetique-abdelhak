@@ -31,19 +31,15 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
-      <Navbar onOpenCart={() => setIsCartOpen(true)} />
+      <Navbar 
+        onOpenCart={() => setIsCartOpen(true)} 
+        onGoHome={() => setSelectedProduct(null)}
+      />
       
       <main className="flex-1">
-        {/* 1. الفئات الدائرية في أعلى الموقع */}
         <CategoryCircles />
-
-        {/* 2. البانر الإشهاري المتحرك */}
         <BannerSlider />
-
-        {/* 3. قسم صمم هديتك بنفسك */}
         <GiftBuilder onOrderGift={(giftProduct) => setSelectedProduct(giftProduct)} />
-
-        {/* 4. عرض كافة المنتجات والتصنيفات */}
         <ProductGrid onSelectProduct={(product) => setSelectedProduct(product)} />
       </main>
 
