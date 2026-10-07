@@ -899,4 +899,71 @@ export default function AdminDashboard({ onClose }) {
               </div>
             </div>
 
-            <button type="submit" className="bg-rose-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-rose-700 transition
+            <button type="submit" className="bg-rose-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-rose-700 transition">
+              حفظ وتحديث كافة البيانات
+            </button>
+          </form>
+        )}
+
+        {/* 7. تبويب الولايات */}
+        {activeTab === 'wilayas' && (
+          <div className="p-6 space-y-6">
+            <div className="bg-rose-50/50 border border-rose-100 p-6 rounded-2xl">
+              <h3 className="text-base font-bold text-gray-800 mb-4">إضافة ولاية جديدة</h3>
+              <form onSubmit={handleAddWilaya} className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                <input
+                  type="text"
+                  placeholder="رمز الولاية (مثال: 59)"
+                  value={wilayaCode}
+                  onChange={(e) => setWilayaCode(e.target.value)}
+                  className="border rounded-xl p-2.5"
+                />
+                <input
+                  type="text"
+                  placeholder="اسم الولاية"
+                  value={wilayaName}
+                  onChange={(e) => setWilayaName(e.target.value)}
+                  className="border rounded-xl p-2.5"
+                />
+                <input
+                  type="number"
+                  placeholder="سعر التوصيل للمنزل"
+                  value={wilayaHome}
+                  onChange={(e) => setWilayaHome(e.target.value)}
+                  className="border rounded-xl p-2.5"
+                />
+                <input
+                  type="number"
+                  placeholder="سعر التوصيل للمكتب"
+                  value={wilayaDesk}
+                  onChange={(e) => setWilayaDesk(e.target.value)}
+                  className="border rounded-xl p-2.5"
+                />
+                <div className="col-span-2 md:col-span-4">
+                  <button type="submit" className="bg-rose-600 text-white font-bold py-2.5 px-6 rounded-xl">
+                    إضافة الولاية
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+              {wilayas.map((w) => (
+                <div key={w.code} className="border p-3 rounded-xl flex justify-between items-center bg-white">
+                  <div>
+                    <span className="font-bold text-rose-600">{w.code} - {w.name}</span>
+                    <p className="text-[11px] text-gray-500">منزل: {w.home} د.ج | مكتب: {w.desk} د.ج</p>
+                  </div>
+                  <button onClick={() => deleteWilaya(w.code)} className="text-red-500 hover:bg-red-50 p-1.5 rounded-lg">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
