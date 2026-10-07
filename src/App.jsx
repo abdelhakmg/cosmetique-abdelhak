@@ -32,27 +32,30 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+      {/* 1. الهيدر المرتبط بالداشبورد */}
       <Navbar onOpenCart={() => setIsCartOpen(true)} />
       
       <main className="flex-1">
-        {/* 1. الفئات الدائرية في أعلى الموقع بحجم مميز */}
+        {/* 2. الفئات الدائرية في أعلى الموقع */}
         <CategoryCircles />
 
-        {/* 2. البانر الإشهاري المتحرك */}
+        {/* 3. البانر الإشهاري التفاعلي */}
         <BannerSlider />
 
-        {/* 3. قسم صمم هديتك بنفسك */}
+        {/* 4. قسم "صمم هديتك بنفسك" المخصص */}
         <GiftBuilder onOrderGift={(giftProduct) => setSelectedProduct(giftProduct)} />
 
-        {/* 4. عرض المنتجات والتصفية */}
+        {/* 5. عرض المنتجات المعروضة */}
         <ProductGrid onSelectProduct={(product) => setSelectedProduct(product)} />
 
-        {/* 5. قسم آراء وتقييمات الزبائن */}
+        {/* 6. قسم تقييمات ثقة الزبائن */}
         <Testimonials />
       </main>
 
+      {/* 7. الفوتر الأسفل */}
       <Footer />
 
+      {/* رابط فتح لوحة التحكم الشاملة */}
       <div className="text-center py-2.5 bg-gray-900 text-gray-400 text-xs">
         <button 
           onClick={() => setIsAdminOpen(true)}
