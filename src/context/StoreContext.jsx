@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { db } from '../firebase';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 
 const StoreContext = createContext();
 
@@ -72,61 +74,118 @@ const INITIAL_PRODUCTS = [
 ];
 
 export function StoreProvider({ children }) {
-  const [categories, setCategories] = useState(() => {
-    const saved = localStorage.getItem('app_categories');
-    return saved ? JSON.parse(saved) : INITIAL_CATEGORIES;
-  });
-
-  const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('app_products');
-    return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
-  });
-
-  const [wilayas, setWilayas] = useState(() => {
-    const saved = localStorage.getItem('app_wilayas');
-    return saved ? JSON.parse(saved) : INITIAL_WILAYAS;
-  });
-
-  const [settings, setSettings] = useState(() => {
-    const saved = localStorage.getItem('app_settings');
-    return saved ? JSON.parse(saved) : INITIAL_SETTINGS;
-  });
-
-  const [banners, setBanners] = useState(() => {
-    const saved = localStorage.getItem('app_banners');
-    return saved ? JSON.parse(saved) : INITIAL_BANNERS;
-  });
-
-  const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('app_orders');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [categories, setCategories] = useState(INITIAL_CATEGORIES);
+  const [products, setProducts] = useState(INITIAL_PRODUCTS);
+  const [wilayas, setWilayas] = useState(INITIAL_WILAYAS);
+  const [settings, setSettings] = useState(INITIAL_SETTINGS);
+  const [banners, setBanners] = useState(INITIAL_BANNERS);
+  const [orders, setOrders] = useState([]);
 
   const [selectedCategory, setSelectedCategory] = useState('الكل');
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => localStorage.setItem('app_categories', JSON.stringify(categories)), [categories]);
-  useEffect(() => localStorage.setItem('app_products', JSON.stringify(products)), [products]);
-  useEffect(() => localStorage.setItem('app_wilayas', JSON.stringify(wilayas)), [wilayas]);
-  useEffect(() => localStorage.setItem('app_settings', JSON.stringify(settings)), [settings]);
-  useEffect(() => localStorage.setItem('app_banners', JSON.stringify(banners)), [banners]);
-  useEffect(() => localStorage.setItem('app_orders', JSON.stringify(orders)), [orders]);
+  // 🔄 الاستماع المباشر للتغييرات في Firebase Firestore (المزامنة اللحظية)
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "store", "data"), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.categories) setCategories(data.categories);
+        if (data.products) setProducts(data.products);
+        if (data.wilayas) setWilayas(data.wilayas);
+        if (data.settings) setSettings(data.settings);
+        if (data.banners) setBanners(data.banners);
+        if (data.orders) setOrders(data.orders);
+      } else {
+        // إذا كانت قاعدة البيانات فارغة أول مرة، يتم رفع البيانات الافتراضية
+        setDoc(doc(db, "store", "data"), {
+          categories: INITIAL_CATEGORIES,
+          products: INITIAL_PRODUCTS,
+          wilayas: INITIAL_WILAYAS,
+          settings: INITIAL_SETTINGS,
+          banners: INITIAL_BANNERS,
+          orders: []
+        });
+      }
+    });
 
-  const addCategory = (name, image) => setCategories((prev) => [...prev, { id: Date.now().toString(), name, image }]);
-  const deleteCategory = (id) => setCategories((prev) => prev.filter((c) => c.id !== id));
+    return () => unsub();
+  }, []);
 
-  const addProduct = (pData) => setProducts((prev) => [{ ...pData, id: Date.now().toString() }, ...prev]);
-  const updateProduct = (id, updatedData) => setProducts((prev) => prev.map((p) => p.id === id ? { ...p, ...updatedData } : p));
-  const deleteProduct = (id) => setProducts((prev) => prev.filter((p) => p.id !== id));
+  // 💾 دالة الحفظ المباشر في Firebase
+  const saveToFirebase = async (newData) => {
+    try {
+      await setDoc(doc(db, "store", "data"), newData, { merge: true });
+    } catch (error) {
+      console.error("خطأ أثناء المزامنة مع Firebase:", error);
+    }
+  };
 
-  const addBanner = (bData) => setBanners((prev) => [{ ...bData, id: Date.now().toString() }, ...prev]);
-  const deleteBanner = (id) => setBanners((prev) => prev.filter((b) => b.id !== id));
+  // --- التصنيفات (Categories) ---
+  const addCategory = (name, image) => {
+    const updated = [...categories, { id: Date.now().toString(), name, image }];
+    setCategories(updated);
+    saveToFirebase({ categories: updated });
+  };
 
-  const addWilaya = (wData) => setWilayas((prev) => [...prev, wData]);
-  const deleteWilaya = (code) => setWilayas((prev) => prev.filter((w) => w.code !== code));
+  const deleteCategory = (id) => {
+    const updated = categories.filter((c) => c.id !== id);
+    setCategories(updated);
+    saveToFirebase({ categories: updated });
+  };
 
-  const updateSettings = (newS) => setSettings((prev) => ({ ...prev, ...newS }));
+  // --- المنتجات (Products) ---
+  const addProduct = (pData) => {
+    const updated = [{ ...pData, id: Date.now().toString() }, ...products];
+    setProducts(updated);
+    saveToFirebase({ products: updated });
+  };
 
+  const updateProduct = (id, updatedData) => {
+    const updated = products.map((p) => p.id === id ? { ...p, ...updatedData } : p);
+    setProducts(updated);
+    saveToFirebase({ products: updated });
+  };
+
+  const deleteProduct = (id) => {
+    const updated = products.filter((p) => p.id !== id);
+    setProducts(updated);
+    saveToFirebase({ products: updated });
+  };
+
+  // --- البانرات (Banners) ---
+  const addBanner = (bData) => {
+    const updated = [{ ...bData, id: Date.now().toString() }, ...banners];
+    setBanners(updated);
+    saveToFirebase({ banners: updated });
+  };
+
+  const deleteBanner = (id) => {
+    const updated = banners.filter((b) => b.id !== id);
+    setBanners(updated);
+    saveToFirebase({ banners: updated });
+  };
+
+  // --- الولائات (Wilayas) ---
+  const addWilaya = (wData) => {
+    const updated = [...wilayas, wData];
+    setWilayas(updated);
+    saveToFirebase({ wilayas: updated });
+  };
+
+  const deleteWilaya = (code) => {
+    const updated = wilayas.filter((w) => w.code !== code);
+    setWilayas(updated);
+    saveToFirebase({ wilayas: updated });
+  };
+
+  // --- الإعدادات (Settings) ---
+  const updateSettings = (newS) => {
+    const updated = { ...settings, ...newS };
+    setSettings(updated);
+    saveToFirebase({ settings: updated });
+  };
+
+  // --- الطلبات (Orders) ---
   const createOrder = (orderData) => {
     const newOrder = {
       ...orderData,
@@ -134,15 +193,21 @@ export function StoreProvider({ children }) {
       date: new Date().toLocaleDateString('ar-DZ') + ' ' + new Date().toLocaleTimeString('ar-DZ', { hour: '2-digit', minute: '2-digit' }),
       status: 'قيد الانتظار'
     };
-    setOrders((prev) => [newOrder, ...prev]);
+    const updated = [newOrder, ...orders];
+    setOrders(updated);
+    saveToFirebase({ orders: updated });
   };
 
   const updateOrderStatus = (orderId, newStatus) => {
-    setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, status: newStatus } : o));
+    const updated = orders.map((o) => o.id === orderId ? { ...o, status: newStatus } : o);
+    setOrders(updated);
+    saveToFirebase({ orders: updated });
   };
 
   const deleteOrder = (orderId) => {
-    setOrders((prev) => prev.filter((o) => o.id !== orderId));
+    const updated = orders.filter((o) => o.id !== orderId);
+    setOrders(updated);
+    saveToFirebase({ orders: updated });
   };
 
   return (
