@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import BannerSlider from './components/BannerSlider';
 import ProductGrid from './components/ProductGrid';
 import CartDrawer from './components/CartDrawer';
 import CheckoutModal from './components/CheckoutModal';
@@ -19,12 +20,10 @@ export default function App() {
     setIsCheckoutOpen(true);
   };
 
-  // 1. عرض لوحة التحكم الإدارية
   if (isAdminOpen) {
     return <AdminDashboard onClose={() => setIsAdminOpen(false)} />;
   }
 
-  // 2. عرض صفحة الهبوط فور اختيار أي منتج
   if (selectedProduct) {
     return (
       <ProductLandingPage
@@ -34,20 +33,19 @@ export default function App() {
     );
   }
 
-  // 3. الشاشة الرئيسية للمتجر
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       <Navbar onOpenCart={() => setIsCartOpen(true)} />
       
       <main className="flex-1">
         <Hero />
-        {/* تمرير دالة الاختيار هنا هي الخطوة الحاسمة */}
+        {/* عرض البانر الإشهاري الكبير في الصفحة الرئيسية */}
+        <BannerSlider />
         <ProductGrid onSelectProduct={(product) => setSelectedProduct(product)} />
       </main>
 
       <Footer />
 
-      {/* زر دخول لوحة التحكم بالأسفل */}
       <div className="text-center py-2 bg-gray-900 text-gray-400 text-xs">
         <button 
           onClick={() => setIsAdminOpen(true)}
