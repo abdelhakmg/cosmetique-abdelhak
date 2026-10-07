@@ -721,12 +721,19 @@ export default function AdminDashboard({ onClose }) {
                   <img src={b.image} alt={b.title} className="w-32 h-32 object-cover shrink-0" />
                   <div className="p-4 flex-1 flex flex-col justify-between">
                     <div>
-                      {b.badge && <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">{b.badge}</span>}
-                      <h4 className="font-bold text-xs text-gray-800 mt-1">{b.title}</h4>
-                      <p className="text-[11px] text-gray-500 line-clamp-1">{b.subtitle}</p>
+                      {b.badge && <span className="bg-rose-100 text-rose-600 text-[10px] font-bold px-2 py-0.5 rounded-full">{b.badge}</span>}
+                      <h4 className="font-bold text-sm mt-1">{b.title}</h4>
+                      <p className="text-xs text-gray-500 line-clamp-2">{b.subtitle}</p>
                     </div>
-                    <button onClick={() => deleteBanner(b.id)} className="text-xs text-red-600 font-bold flex items-center gap-1 hover:underline mt-2">
-                      <Trash2 className="w-3.5 h-3.5" /> حذف الإعلان
+                    <button
+                      onClick={() => {
+                        if (window.confirm('هل أنت تأكد من رغبتك في حذف هذا البانر؟')) {
+                          deleteBanner(b.id);
+                        }
+                      }}
+                      className="text-red-500 font-bold text-xs self-start hover:bg-red-50 p-1 rounded-lg"
+                    >
+                      حذف البانر
                     </button>
                   </div>
                 </div>
@@ -739,14 +746,14 @@ export default function AdminDashboard({ onClose }) {
         {activeTab === 'categories' && (
           <div className="p-6 space-y-6">
             <div className="bg-rose-50/50 border border-rose-100 p-6 rounded-2xl">
-              <h3 className="text-base font-bold text-gray-800 mb-4">إضافة فئة دائرية جديدة</h3>
+              <h3 className="text-base font-bold text-gray-800 mb-4">إضافة فئة جديدة</h3>
               <form onSubmit={handleAddCategory} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 <div>
                   <label className="block font-bold mb-1">اسم الفئة *</label>
                   <input
                     type="text"
                     required
-                    placeholder="اسم الفئة"
+                    placeholder="اسم الفئة (مثال: هدايا)"
                     value={catName}
                     onChange={(e) => setCatName(e.target.value)}
                     className="w-full border rounded-xl p-3"
@@ -764,20 +771,29 @@ export default function AdminDashboard({ onClose }) {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <button type="submit" className="bg-rose-600 text-white font-bold py-2.5 px-6 rounded-xl">
+                  <button type="submit" className="bg-rose-600 text-white font-bold py-3 px-6 rounded-xl">
                     إضافة الفئة
                   </button>
                 </div>
               </form>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {categories.map((c) => (
-                <div key={c.id} className="border p-3 rounded-2xl flex flex-col items-center gap-2 bg-white text-center">
-                  <img src={c.image} alt={c.name} className="w-16 h-16 rounded-full object-cover border" />
-                  <span className="font-bold text-xs">{c.name}</span>
-                  <button onClick={() => deleteCategory(c.id)} className="text-red-500 text-xs flex items-center gap-1 hover:underline">
-                    <Trash2 className="w-3 h-3" /> حذف
+                <div key={c.id} className="border p-3 rounded-2xl bg-white flex items-center justify-between shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <img src={c.image} alt={c.name} className="w-12 h-12 rounded-full object-cover shrink-0" />
+                    <span className="font-bold text-xs">{c.name}</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (window.confirm('هل أنت تأكد من رغبتك في حذف هذه الفئة؟')) {
+                        deleteCategory(c.id);
+                      }
+                    }}
+                    className="text-red-500 hover:bg-red-50 p-2 rounded-xl"
+                  >
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               ))}
@@ -785,47 +801,17 @@ export default function AdminDashboard({ onClose }) {
           </div>
         )}
 
-        {/* 6. الإعدادات */}
+        {/* 6. الإعدادات والمعلومات (مضاف إليها خانة الفيسبوك) */}
         {activeTab === 'settings' && (
-          <form onSubmit={handleSaveSettings} className="p-6 space-y-4 text-xs">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-6 space-y-6">
+            <form onSubmit={handleSaveSettings} className="space-y-4 text-xs max-w-2xl bg-gray-50 p-6 rounded-2xl border">
               <div>
                 <label className="block font-bold mb-1">اسم المتجر</label>
                 <input
                   type="text"
-                  value={settingsForm.storeName}
+                  value={settingsForm.storeName || ''}
                   onChange={(e) => setSettingsForm({ ...settingsForm, storeName: e.target.value })}
-                  className="w-full border rounded-xl p-3"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold mb-1">كلمة المرور الإدارية 🔑</label>
-                <input
-                  type="text"
-                  value={settingsForm.adminPassword || '1234'}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, adminPassword: e.target.value })}
-                  className="w-full border border-rose-300 rounded-xl p-3 font-mono font-bold bg-rose-50/30"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold mb-1">البريد الإلكتروني للإشعارات</label>
-                <input
-                  type="email"
-                  value={settingsForm.email || ''}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
-                  className="w-full border rounded-xl p-3"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold mb-1">رقم الواتساب (213...)</label>
-                <input
-                  type="text"
-                  value={settingsForm.whatsapp || ''}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, whatsapp: e.target.value })}
-                  className="w-full border rounded-xl p-3"
+                  className="w-full border rounded-xl p-3 bg-white"
                 />
               </div>
 
@@ -833,111 +819,137 @@ export default function AdminDashboard({ onClose }) {
                 <label className="block font-bold mb-1">رقم الهاتف للاتصال</label>
                 <input
                   type="text"
-                  value={settingsForm.phone}
+                  value={settingsForm.phone || ''}
                   onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
-                  className="w-full border rounded-xl p-3"
+                  className="w-full border rounded-xl p-3 bg-white"
                 />
               </div>
 
               <div>
-                <label className="block font-bold mb-1">Facebook Pixel ID</label>
+                <label className="block font-bold mb-1">البريد الإلكتروني للمتجر</label>
+                <input
+                  type="email"
+                  value={settingsForm.email || ''}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
+                  className="w-full border rounded-xl p-3 bg-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold mb-1">رابط صفحة Facebook</label>
+                  <input
+                    type="url"
+                    placeholder="https://facebook.com/your-page"
+                    value={settingsForm.facebook || ''}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, facebook: e.target.value })}
+                    className="w-full border rounded-xl p-3 bg-white text-left"
+                    dir="ltr"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold mb-1">رابط حساب Instagram</label>
+                  <input
+                    type="url"
+                    placeholder="https://instagram.com/your-page"
+                    value={settingsForm.instagram || ''}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, instagram: e.target.value })}
+                    className="w-full border rounded-xl p-3 bg-white text-left"
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <label className="block font-bold mb-1 text-rose-600">كلمة مرور لوحة التحكم الإدارية 🔐</label>
                 <input
                   type="text"
-                  placeholder="مثال: 123456789012345"
-                  value={settingsForm.pixelId || ''}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, pixelId: e.target.value })}
-                  className="w-full border rounded-xl p-3"
+                  value={settingsForm.adminPassword || ''}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, adminPassword: e.target.value })}
+                  className="w-full border rounded-xl p-3 bg-white font-bold"
                 />
               </div>
 
-              <div>
-                <label className="block font-bold mb-1">رابط اللوجو (Logo URL)</label>
-                <input
-                  type="url"
-                  placeholder="https://..."
-                  value={settingsForm.logoUrl || ''}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, logoUrl: e.target.value })}
-                  className="w-full border rounded-xl p-3"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold mb-1">رابط الإنستغرام</label>
-                <input
-                  type="url"
-                  value={settingsForm.instagram}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, instagram: e.target.value })}
-                  className="w-full border rounded-xl p-3"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block font-bold mb-1">نص الشريط العلوي للموقع</label>
-                <input
-                  type="text"
-                  value={settingsForm.topAnnouncement}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, topAnnouncement: e.target.value })}
-                  className="w-full border rounded-xl p-3"
-                />
-              </div>
-            </div>
-
-            <button type="submit" className="bg-rose-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-rose-700 transition flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4" /> حفظ الإعدادات
-            </button>
-          </form>
+              <button type="submit" className="bg-rose-600 text-white font-bold py-3.5 px-6 rounded-xl hover:bg-rose-700 transition">
+                حفظ الإعدادات 🛡️
+              </button>
+            </form>
+          </div>
         )}
 
         {/* 7. الولايات */}
         {activeTab === 'wilayas' && (
           <div className="p-6 space-y-6">
             <div className="bg-rose-50/50 border border-rose-100 p-6 rounded-2xl">
-              <h3 className="text-base font-bold text-gray-800 mb-4">إضافة ولاية جديدة</h3>
-              <form onSubmit={handleAddWilaya} className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                <input
-                  type="text"
-                  placeholder="رمز الولاية (مثال: 59)"
-                  value={wilayaCode}
-                  onChange={(e) => setWilayaCode(e.target.value)}
-                  className="border rounded-xl p-2.5"
-                />
-                <input
-                  type="text"
-                  placeholder="اسم الولاية"
-                  value={wilayaName}
-                  onChange={(e) => setWilayaName(e.target.value)}
-                  className="border rounded-xl p-2.5"
-                />
-                <input
-                  type="number"
-                  placeholder="سعر التوصيل للمنزل"
-                  value={wilayaHome}
-                  onChange={(e) => setWilayaHome(e.target.value)}
-                  className="border rounded-xl p-2.5"
-                />
-                <input
-                  type="number"
-                  placeholder="سعر التوصيل للمكتب"
-                  value={wilayaDesk}
-                  onChange={(e) => setWilayaDesk(e.target.value)}
-                  className="border rounded-xl p-2.5"
-                />
-                <div className="col-span-2 md:col-span-4">
-                  <button type="submit" className="bg-rose-600 text-white font-bold py-2.5 px-6 rounded-xl">
+              <h3 className="text-base font-bold text-gray-800 mb-4">إضافة ولاية جديدة وسعر التوصيل</h3>
+              <form onSubmit={handleAddWilaya} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                <div>
+                  <label className="block font-bold mb-1">رقم الولاية *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="16"
+                    value={wilayaCode}
+                    onChange={(e) => setWilayaCode(e.target.value)}
+                    className="w-full border rounded-xl p-3"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold mb-1">اسم الولاية *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="الجزائر"
+                    value={wilayaName}
+                    onChange={(e) => setWilayaName(e.target.value)}
+                    className="w-full border rounded-xl p-3"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold mb-1">سعر توصيل للمنزل (د.ج) *</label>
+                  <input
+                    type="number"
+                    required
+                    placeholder="600"
+                    value={wilayaHome}
+                    onChange={(e) => setWilayaHome(e.target.value)}
+                    className="w-full border rounded-xl p-3"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold mb-1">سعر توصيل للمكتب (د.ج)</label>
+                  <input
+                    type="number"
+                    placeholder="400"
+                    value={wilayaDesk}
+                    onChange={(e) => setWilayaDesk(e.target.value)}
+                    className="w-full border rounded-xl p-3"
+                  />
+                </div>
+                <div className="md:col-span-4">
+                  <button type="submit" className="bg-rose-600 text-white font-bold py-3 px-6 rounded-xl">
                     إضافة الولاية
                   </button>
                 </div>
               </form>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {wilayas.map((w) => (
-                <div key={w.code} className="border p-3 rounded-xl flex justify-between items-center bg-white">
+                <div key={w.id || w.code} className="border p-3.5 rounded-2xl bg-white flex items-center justify-between text-xs shadow-sm">
                   <div>
-                    <span className="font-bold text-rose-600">{w.code} - {w.name}</span>
-                    <p className="text-[11px] text-gray-500">منزل: {w.home} د.ج | مكتب: {w.desk} د.ج</p>
+                    <span className="font-bold text-rose-600 block">{w.code} - {w.name}</span>
+                    <span className="text-[11px] text-gray-500 block mt-0.5">منزل: {w.home} د.ج | مكتب: {w.desk || w.home} د.ج</span>
                   </div>
-                  <button onClick={() => deleteWilaya(w.code)} className="text-red-500 hover:bg-red-50 p-1.5 rounded-lg">
+                  <button
+                    onClick={() => {
+                      if (window.confirm('هل أنت تأكد من رغبتك في حذف هذه الولاية؟')) {
+                        deleteWilaya(w.id || w.code);
+                      }
+                    }}
+                    className="text-red-500 hover:bg-red-50 p-2 rounded-xl"
+                  >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
