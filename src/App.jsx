@@ -32,8 +32,10 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+      {/* تمرير فتح اللوحة بعد 3 ضغطات وفتح السلة */}
       <Navbar 
         onOpenCart={() => setIsCartOpen(true)} 
+        onOpenAdmin={() => setIsAdminOpen(true)}
         onGoHome={() => setSelectedProduct(null)}
       />
       
@@ -49,15 +51,7 @@ export default function App() {
       {/* عناصر الواتساب والإشعارات الحية */}
       <LiveWidgets />
 
-      <div className="text-center py-2.5 bg-gray-900 text-gray-400 text-xs">
-        <button 
-          onClick={() => setIsAdminOpen(true)}
-          className="hover:text-white underline font-mono font-bold"
-        >
-          ⚙️ لوحة التحكم الشاملة لـ Cosmetique Abdelhak
-        </button>
-      </div>
-
+      {/* مودال السلة والدفع */}
       <CartDrawer 
         isOpen={isCartOpen} 
         onClose={() => setIsCartOpen(false)} 
