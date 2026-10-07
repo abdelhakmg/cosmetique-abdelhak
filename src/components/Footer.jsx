@@ -42,21 +42,36 @@ export default function Footer() {
         <div className="space-y-3">
           <h4 className="font-bold text-sm text-white">تابعنا على التواصل الاجتماعي</h4>
           <div className="flex items-center gap-3">
+            {/* زر فيسبوك الديناميكي */}
+            {settings.facebook && (
+              <a 
+                href={settings.facebook} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="p-2.5 bg-gray-800 hover:bg-rose-600 rounded-xl transition"
+              >
+                <Facebook className="w-5 h-5" />
+              </a>
+            )}
+
+            {/* زر انستغرام الديناميكي */}
             {settings.instagram && (
-              <a href={settings.instagram} target="_blank" rel="noreferrer" className="p-2.5 bg-gray-800 hover:bg-rose-600 rounded-xl transition">
+              <a 
+                href={settings.instagram} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="p-2.5 bg-gray-800 hover:bg-rose-600 rounded-xl transition"
+              >
                 <Instagram className="w-5 h-5" />
               </a>
             )}
-            <a href="#" className="p-2.5 bg-gray-800 hover:bg-rose-600 rounded-xl transition">
-              <Facebook className="w-5 h-5" />
-            </a>
           </div>
         </div>
 
       </div>
 
       <div className="max-w-6xl mx-auto pt-6 text-center text-xs text-gray-500">
-        <p>جميع الحقوق محفوظة © Cosmetique Abdelhak 2026</p>
+        <p>جميع الحقوق محفوظة © {settings.storeName || 'Cosmetique Abdelhak'} {new Date().getFullYear()}</p>
       </div>
     </footer>
   );
