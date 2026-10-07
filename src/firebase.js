@@ -1,7 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
-// مفاتيح التهيئة الخاصة بمتجرك
 const firebaseConfig = {
   apiKey: "AIzaSyAMhA4Csm8vJ3v1EYoLJaqwJuEPWmlew28",
   authDomain: "cosmetique-abdelhak.firebaseapp.com",
@@ -11,8 +10,5 @@ const firebaseConfig = {
   appId: "1:1068637497574:web:70944cfda03e0806f3b327"
 };
 
-// تهيئة Firebase
 const app = initializeApp(firebaseConfig);
-
-// تصدير قاعدة البيانات لاستخدامها في باقي الملفات
 export const db = getFirestore(app);
