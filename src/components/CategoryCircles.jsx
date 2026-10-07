@@ -14,8 +14,6 @@ export default function CategoryCircles() {
       </div>
 
       <div className="flex items-center gap-5 md:gap-7 overflow-x-auto pb-4 pt-1 no-scrollbar justify-start">
-        
-        {/* زر جميع المنتجات */}
         <div
           onClick={() => setSelectedCategory('الكل')}
           className="flex flex-col items-center gap-2 cursor-pointer shrink-0 group"
@@ -32,7 +30,6 @@ export default function CategoryCircles() {
           <span className="text-xs font-black text-gray-800">جميع المنتجات</span>
         </div>
 
-        {/* عرض الفئات الدائرية بالصور */}
         {categories && categories.map((cat) => (
           <div
             key={cat.id}
