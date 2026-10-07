@@ -1,64 +1,62 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
-import { Phone, Mail, Instagram, Facebook, Sparkles, MapPin } from 'lucide-react';
+import { Phone, Mail, MapPin, Instagram, Facebook, ShieldCheck } from 'lucide-react';
 
 export default function Footer() {
   const { settings } = useStore();
 
   return (
-    <footer className="bg-gray-900 text-gray-300 font-sans border-t border-gray-800 pt-12 pb-6 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 text-right">
+    <footer className="bg-gray-900 text-white pt-12 pb-8 px-4 font-sans text-right">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-gray-800">
         
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-6 h-6 text-rose-500" />
-            <span className="text-xl font-black text-white">{settings.storeName || 'Cosmetique Abdelhak'}</span>
-          </div>
+        {/* معلومات المتجر */}
+        <div className="space-y-3">
+          <h3 className="text-lg font-black text-rose-500">{settings.storeName || 'Cosmetique Abdelhak'}</h3>
           <p className="text-xs text-gray-400 leading-relaxed">
             متجركم المتخصص في توفير أفضل مستحضرات التجميل والعناية والهدايا الراقية بأسعار منافسة مع توصيل لـ 58 ولاية.
           </p>
-        </div>
-
-        <div>
-          <h4 className="text-sm font-bold text-white mb-3">تواصل معنا</h4>
-          <div className="space-y-2 text-xs">
-            <div className="flex items-center gap-2">
-              <Phone className="w-4 h-4 text-rose-500" />
-              <span>{settings.phone}</span>
-            </div>
-            {settings.email && (
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-rose-500" />
-                <span>{settings.email}</span>
-              </div>
-            )}
-            <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-rose-500" />
-              <span>الجزائر</span>
-            </div>
+          <div className="flex items-center gap-2 text-xs text-emerald-400 font-bold pt-1">
+            <ShieldCheck className="w-4 h-4" />
+            <span>ضمان المعاينة والتأكد قبل الدفع</span>
           </div>
         </div>
 
-        <div>
-          <h4 className="text-sm font-bold text-white mb-3">تابعنا على التواصل الاجتماعي</h4>
+        {/* معلومات التواصل */}
+        <div className="space-y-3 text-xs text-gray-300">
+          <h4 className="font-bold text-sm text-white">تواصل معنا</h4>
+          <div className="flex items-center gap-2">
+            <Phone className="w-4 h-4 text-rose-500" />
+            <span>{settings.phone || '0550875580'}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Mail className="w-4 h-4 text-rose-500" />
+            <span>{settings.email || 'contact@cosmetique-abdelhak.dz'}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-rose-500" />
+            <span>الجزائر</span>
+          </div>
+        </div>
+
+        {/* شبكات التواصل الاجتماعي */}
+        <div className="space-y-3">
+          <h4 className="font-bold text-sm text-white">تابعنا على التواصل الاجتماعي</h4>
           <div className="flex items-center gap-3">
             {settings.instagram && (
-              <a href={settings.instagram} target="_blank" rel="noreferrer" className="bg-gray-800 p-2.5 rounded-xl text-rose-400 hover:bg-rose-600 hover:text-white transition">
+              <a href={settings.instagram} target="_blank" rel="noreferrer" className="p-2.5 bg-gray-800 hover:bg-rose-600 rounded-xl transition">
                 <Instagram className="w-5 h-5" />
               </a>
             )}
-            {settings.facebook && (
-              <a href={settings.facebook} target="_blank" rel="noreferrer" className="bg-gray-800 p-2.5 rounded-xl text-rose-400 hover:bg-rose-600 hover:text-white transition">
-                <Facebook className="w-5 h-5" />
-              </a>
-            )}
+            <a href="#" className="p-2.5 bg-gray-800 hover:bg-rose-600 rounded-xl transition">
+              <Facebook className="w-5 h-5" />
+            </a>
           </div>
         </div>
 
       </div>
 
-      <div className="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
-        جميع الحقوق محفوظة © {settings.storeName} {new Date().getFullYear()}
+      <div className="max-w-6xl mx-auto pt-6 text-center text-xs text-gray-500">
+        <p>جميع الحقوق محفوظة © Cosmetique Abdelhak 2026</p>
       </div>
     </footer>
   );
