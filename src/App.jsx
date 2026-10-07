@@ -4,7 +4,6 @@ import CategoryCircles from './components/CategoryCircles';
 import BannerSlider from './components/BannerSlider';
 import GiftBuilder from './components/GiftBuilder';
 import ProductGrid from './components/ProductGrid';
-import Testimonials from './components/Testimonials';
 import CartDrawer from './components/CartDrawer';
 import CheckoutModal from './components/CheckoutModal';
 import Footer from './components/Footer';
@@ -35,11 +34,17 @@ export default function App() {
       <Navbar onOpenCart={() => setIsCartOpen(true)} />
       
       <main className="flex-1">
+        {/* 1. الفئات الدائرية في أعلى الموقع */}
         <CategoryCircles />
+
+        {/* 2. البانر الإشهاري المتحرك */}
         <BannerSlider />
+
+        {/* 3. قسم صمم هديتك بنفسك */}
         <GiftBuilder onOrderGift={(giftProduct) => setSelectedProduct(giftProduct)} />
+
+        {/* 4. عرض كافة المنتجات والتصنيفات */}
         <ProductGrid onSelectProduct={(product) => setSelectedProduct(product)} />
-        <Testimonials />
       </main>
 
       <Footer />
