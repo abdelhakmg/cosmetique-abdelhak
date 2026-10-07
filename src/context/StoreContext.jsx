@@ -22,8 +22,8 @@ const INITIAL_WILAYAS = [
 const INITIAL_SETTINGS = {
   storeName: 'Cosmetique Abdelhak',
   logoUrl: '',
-  phone: '0550000000',
-  whatsapp: '213550000000',
+  phone: '0550875580',
+  whatsapp: '213550875580',
   instagram: 'https://instagram.com',
   facebook: 'https://facebook.com',
   email: 'contact@cosmetique-abdelhak.dz',
@@ -48,8 +48,7 @@ const INITIAL_PRODUCTS = [
     category: 'كوسمتيك',
     description: 'سيروم مغذي ومجدد لخلايا البشرة يمنحك نضارة فورية وإشراقة تدوم طويلاً.',
     images: [
-      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=600',
-      'https://images.unsplash.com/photo-1608248597261-2856417537b8?auto=format&fit=crop&q=80&w=600'
+      'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=600'
     ],
     rating: 4.9
   },
@@ -107,27 +106,21 @@ export function StoreProvider({ children }) {
   useEffect(() => localStorage.setItem('app_banners', JSON.stringify(banners)), [banners]);
   useEffect(() => localStorage.setItem('app_orders', JSON.stringify(orders)), [orders]);
 
-  // إدارة التصنيفات
   const addCategory = (name, image) => setCategories((prev) => [...prev, { id: Date.now().toString(), name, image }]);
   const deleteCategory = (id) => setCategories((prev) => prev.filter((c) => c.id !== id));
 
-  // إدارة المنتجات (إضافة - تعديل - حذف)
   const addProduct = (pData) => setProducts((prev) => [{ ...pData, id: Date.now().toString() }, ...prev]);
   const updateProduct = (id, updatedData) => setProducts((prev) => prev.map((p) => p.id === id ? { ...p, ...updatedData } : p));
   const deleteProduct = (id) => setProducts((prev) => prev.filter((p) => p.id !== id));
 
-  // إدارة البانرات
   const addBanner = (bData) => setBanners((prev) => [{ ...bData, id: Date.now().toString() }, ...prev]);
   const deleteBanner = (id) => setBanners((prev) => prev.filter((b) => b.id !== id));
 
-  // إدارة الولايات
   const addWilaya = (wData) => setWilayas((prev) => [...prev, wData]);
   const deleteWilaya = (code) => setWilayas((prev) => prev.filter((w) => w.code !== code));
 
-  // إدارة الإعدادات
   const updateSettings = (newS) => setSettings((prev) => ({ ...prev, ...newS }));
 
-  // إدارة الطلبيات والحالات (مؤكد - جاري التوصيل - تم الاستلام - حذف)
   const createOrder = (orderData) => {
     const newOrder = {
       ...orderData,
