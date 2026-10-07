@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
 import { ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
+import { db } from '../firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 const DEFAULT_BANNER = {
   id: 'def',
@@ -11,9 +13,24 @@ const DEFAULT_BANNER = {
 };
 
 export default function BannerSlider() {
-  const { banners } = useStore();
-  const activeBanners = banners && banners.length > 0 ? banners : [DEFAULT_BANNER];
+  const { banners: contextBanners } = useStore();
+  const [firestoreBanners, setFirestoreBanners] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  // الاستماع المباشر للتغييرات في Firebase
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "settings", "banners"), (docSnap) => {
+      if (docSnap.exists() && docSnap.data().items) {
+        setFirestoreBanners(docSnap.data().items);
+      }
+    });
+
+    return () => unsub();
+  }, []);
+
+  // تحديد البانرات المعروضة: نفضل Firebase أولاً ثم Context ثم الافتراضي
+  const rawBanners = firestoreBanners || contextBanners;
+  const activeBanners = rawBanners && rawBanners.length > 0 ? rawBanners : [DEFAULT_BANNER];
 
   useEffect(() => {
     if (activeBanners.length <= 1) return;
