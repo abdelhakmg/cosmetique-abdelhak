@@ -5,6 +5,16 @@ import { Sparkles } from 'lucide-react';
 export default function CategoryCircles() {
   const { categories, selectedCategory, setSelectedCategory } = useStore();
 
+  const handleCategoryClick = (categoryName) => {
+    setSelectedCategory(categoryName);
+
+    // التمرير السلس إلى قسم المنتجات
+    const productsSection = document.getElementById('products-section');
+    if (productsSection) {
+      productsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">
       <div className="flex items-center justify-between mb-4">
@@ -14,8 +24,9 @@ export default function CategoryCircles() {
       </div>
 
       <div className="flex items-center gap-5 md:gap-7 overflow-x-auto pb-4 pt-1 no-scrollbar justify-start">
+        {/* زر الكل */}
         <div
-          onClick={() => setSelectedCategory('الكل')}
+          onClick={() => handleCategoryClick('الكل')}
           className="flex flex-col items-center gap-2 cursor-pointer shrink-0 group"
         >
           <div
@@ -30,10 +41,11 @@ export default function CategoryCircles() {
           <span className="text-xs font-black text-gray-800">جميع المنتجات</span>
         </div>
 
+        {/* بقية الفئات */}
         {categories && categories.map((cat) => (
           <div
             key={cat.id}
-            onClick={() => setSelectedCategory(cat.name)}
+            onClick={() => handleCategoryClick(cat.name)}
             className="flex flex-col items-center gap-2 cursor-pointer shrink-0 group"
           >
             <div
