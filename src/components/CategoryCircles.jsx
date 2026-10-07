@@ -9,7 +9,7 @@ export default function CategoryCircles() {
     setSelectedCategory(categoryName);
 
     // التمرير السلس إلى قسم المنتجات
-    const productsSection = document.getElementById('products-section');
+    const productsSection = document.getElementById('products');
     if (productsSection) {
       productsSection.scrollIntoView({ behavior: 'smooth' });
     }
