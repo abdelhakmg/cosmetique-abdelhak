@@ -9,6 +9,7 @@ import CheckoutModal from './components/CheckoutModal';
 import Footer from './components/Footer';
 import AdminDashboard from './components/AdminDashboard';
 import ProductLandingPage from './components/ProductLandingPage';
+import LiveWidgets from './components/LiveWidgets';
 
 export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -44,6 +45,9 @@ export default function App() {
       </main>
 
       <Footer />
+
+      {/* عناصر الواتساب والإشعارات الحية */}
+      <LiveWidgets />
 
       <div className="text-center py-2.5 bg-gray-900 text-gray-400 text-xs">
         <button 
