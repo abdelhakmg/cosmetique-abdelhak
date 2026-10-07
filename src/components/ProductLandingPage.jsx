@@ -13,8 +13,8 @@ export default function ProductLandingPage({ product, onBack }) {
   const [quantity, setQuantity] = useState(1);
   const [orderSuccess, setOrderSuccess] = useState(false);
 
-  // صور المنتج والشريط المتغير
-  const productImages = product.images && product.images.length > 0 ? product.images : [product.image];
+  // حماية وإخفاء الشريط إذا كانت الصورة واحدة فقط
+  const productImages = product.images && product.images.length > 0 ? product.images.filter(img => img.trim() !== '') : [product.image];
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
 
   const currentWilaya = wilayas.find((w) => w.name === selectedWilaya) || wilayas[0] || { home: 600, desk: 400 };
@@ -36,7 +36,7 @@ export default function ProductLandingPage({ product, onBack }) {
       baladiya,
       shippingType: shippingType === 'home' ? 'توصيل للمنزل' : 'توصيل للمكتب',
       quantity,
-      productName: product.name,
+      productName: product.name + (product.description ? ` (${product.description})` : ''),
       grandTotal
     });
 
@@ -197,7 +197,6 @@ export default function ProductLandingPage({ product, onBack }) {
             <div>
               <h2 className="text-xl font-black text-gray-900 text-center mb-3">{product.name}</h2>
               
-              {/* مشغل صور المنتج المتغير */}
               <div className="relative rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 mb-3 group">
                 <img
                   src={productImages[currentImgIndex]}
@@ -205,6 +204,7 @@ export default function ProductLandingPage({ product, onBack }) {
                   className="w-full h-64 md:h-72 object-contain p-2 transition duration-300"
                 />
                 
+                {/* تظهر الأسهم فقط إذا كان هناك أكثر من صورة */}
                 {productImages.length > 1 && (
                   <>
                     <button
@@ -223,7 +223,7 @@ export default function ProductLandingPage({ product, onBack }) {
                 )}
               </div>
 
-              {/* المصغرات أسفل الصورة الرئيسية */}
+              {/* يختفي شريط المصغرات تماماً إذا كانت هناك صورة واحدة فقط */}
               {productImages.length > 1 && (
                 <div className="flex justify-center gap-2 mb-4">
                   {productImages.map((img, idx) => (
