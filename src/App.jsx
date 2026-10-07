@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import Navbar from './components/Navbar';
-import Hero from './components/Hero';
+import CategoryCircles from './components/CategoryCircles';
 import BannerSlider from './components/BannerSlider';
+import GiftBuilder from './components/GiftBuilder';
 import ProductGrid from './components/ProductGrid';
+import Testimonials from './components/Testimonials';
 import CartDrawer from './components/CartDrawer';
 import CheckoutModal from './components/CheckoutModal';
 import Footer from './components/Footer';
@@ -14,11 +16,6 @@ export default function App() {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-
-  const handleOpenCheckout = () => {
-    setIsCartOpen(false);
-    setIsCheckoutOpen(true);
-  };
 
   if (isAdminOpen) {
     return <AdminDashboard onClose={() => setIsAdminOpen(false)} />;
@@ -38,27 +35,40 @@ export default function App() {
       <Navbar onOpenCart={() => setIsCartOpen(true)} />
       
       <main className="flex-1">
-        <Hero />
-        {/* عرض البانر الإشهاري الكبير في الصفحة الرئيسية */}
+        {/* 1. التصنيفات الدائرية */}
+        <CategoryCircles />
+
+        {/* 2. البانر الإشهاري */}
         <BannerSlider />
+
+        {/* 3. قسم صمم هديتك بنفسك */}
+        <GiftBuilder onOrderGift={(giftProduct) => setSelectedProduct(giftProduct)} />
+
+        {/* 4. عرض المنتجات */}
         <ProductGrid onSelectProduct={(product) => setSelectedProduct(product)} />
+
+        {/* 5. آراء الزبائن */}
+        <Testimonials />
       </main>
 
       <Footer />
 
-      <div className="text-center py-2 bg-gray-900 text-gray-400 text-xs">
+      <div className="text-center py-2.5 bg-gray-900 text-gray-400 text-xs">
         <button 
           onClick={() => setIsAdminOpen(true)}
-          className="hover:text-white underline font-mono"
+          className="hover:text-white underline font-mono font-bold"
         >
-          ⚙️ لوحة التحكم الإدارية
+          ⚙️ لوحة التحكم الشاملة لـ Cosmetique Abdelhak
         </button>
       </div>
 
       <CartDrawer 
         isOpen={isCartOpen} 
         onClose={() => setIsCartOpen(false)} 
-        onCheckout={handleOpenCheckout}
+        onCheckout={() => {
+          setIsCartOpen(false);
+          setIsCheckoutOpen(true);
+        }}
       />
 
       <CheckoutModal 
