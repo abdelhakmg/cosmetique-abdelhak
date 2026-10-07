@@ -1,74 +1,139 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import { ShoppingBag, Search, Sparkles, Phone, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, Menu, X, PhoneCall, Sparkles, ShieldCheck } from 'lucide-react';
 
-export default function Navbar({ onOpenCart, onGoHome }) {
-  const { settings, searchQuery, setSearchQuery, setSelectedCategory } = useStore();
+export default function Navbar({ onOpenAdmin, onOpenCart }) {
+  const { cart, categories, settings } = useStore();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [logoClicks, setLogoClicks] = useState(0);
 
+  // حساب إجمالي عدد القطع في السلة
+  const cartItemsCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+
+  // فتح لوحة التحكم بعد 3 ضغطات متتالية على اللوجو
   const handleLogoClick = () => {
-    setSelectedCategory('الكل');
-    if (onGoHome) onGoHome();
+    const newClicks = logoClicks + 1;
+    if (newClicks === 3) {
+      onOpenAdmin();
+      setLogoClicks(0);
+    } else {
+      setLogoClicks(newClicks);
+      setTimeout(() => setLogoClicks(0), 1500);
+    }
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-rose-100 shadow-sm font-sans">
-      <div className="bg-rose-600 text-white text-xs py-2 px-4 text-center font-bold flex items-center justify-between max-w-7xl mx-auto">
-        <div className="hidden sm:flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-yellow-300" />
-          <span>منتجات مضمونة وأصلية 100%</span>
-        </div>
-        <div className="mx-auto sm:mx-0 flex items-center gap-1">
-          <Sparkles className="w-3.5 h-3.5 text-yellow-300 animate-pulse" />
-          <span>{settings.topAnnouncement || 'توصيل سريع لجميع 58 ولاية والدفع عند الاستلام'}</span>
-        </div>
-        <div className="hidden md:flex items-center gap-1">
-          <Phone className="w-3.5 h-3.5" />
-          <span>اتصل بنا: {settings.phone}</span>
-        </div>
+    <>
+      {/* شريط الإشعارات العلوي */}
+      <div className="bg-rose-600 text-white text-[11px] font-bold py-1.5 px-4 text-center flex items-center justify-center gap-2 shadow-inner">
+        <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+        <span>{settings.topAnnouncement || 'توصيل سريع لجميع 58 ولاية - الدفع يداً بيد عند الاستلام'}</span>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <div className="flex items-center justify-between gap-4">
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-40 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           
-          {/* الضغط على اسم المتجر أو اللوجو يعيد القائمة الرئيسية */}
-          <div className="flex items-center gap-2.5 cursor-pointer group" onClick={handleLogoClick}>
+          {/* الجانب الأيمن: زر القائمة الجانبية + سلة التسوق مع العداد */}
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setIsMenuOpen(true)}
+              className="p-2 rounded-xl text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition"
+              aria-label="القائمة الجانبية"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+
+            <button 
+              onClick={onOpenCart}
+              className="relative p-2 rounded-xl text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition"
+            >
+              <ShoppingBag className="w-6 h-6" />
+              {cartItemsCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-rose-600 text-white font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-bounce">
+                  {cartItemsCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* المنتصف: اللوجو (اضغط 3 مرات لفتح اللوحة) */}
+          <div 
+            onClick={handleLogoClick} 
+            className="cursor-pointer select-none text-center"
+            title="Cosmetique Abdelhak"
+          >
             {settings.logoUrl ? (
-              <img src={settings.logoUrl} alt={settings.storeName} className="w-10 h-10 object-contain rounded-xl border border-rose-100 p-0.5" />
+              <img src={settings.logoUrl} alt={settings.storeName} className="h-10 object-contain mx-auto" />
             ) : (
-              <div className="bg-gradient-to-tr from-rose-600 to-pink-500 text-white p-2.5 rounded-2xl shadow-md shadow-rose-200 group-hover:scale-105 transition">
-                <Sparkles className="w-6 h-6" />
+              <div>
+                <h1 className="text-lg md:text-xl font-black text-gray-900 tracking-tight flex items-center gap-1">
+                  {settings.storeName || 'Cosmetique Abdelhak'}
+                  <Sparkles className="w-4 h-4 text-rose-500 fill-rose-500" />
+                </h1>
+                <p className="text-[9px] text-gray-400 font-medium">عالم الفخامة والعناية بالجمال</p>
               </div>
             )}
+          </div>
+
+          {/* الجانب الأيسر: اتصل بنا */}
+          <a 
+            href={`tel:${settings.phone || '0550875580'}`}
+            className="hidden sm:flex items-center gap-1.5 bg-rose-50 text-rose-600 text-xs font-bold px-3 py-2 rounded-xl hover:bg-rose-100 transition"
+          >
+            <PhoneCall className="w-3.5 h-3.5" />
+            <span>اتصل بنا</span>
+          </a>
+        </div>
+      </header>
+
+      {/* القائمة الجانبية للزبون (Drawer) */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsMenuOpen(false)} />
+          <div className="relative w-4/5 max-w-xs bg-white h-full shadow-2xl flex flex-col justify-between p-6 z-10 text-right font-sans">
             <div>
-              <span className="text-xl md:text-2xl font-black text-gray-900 tracking-tight block group-hover:text-rose-600 transition">
-                {settings.storeName || 'Cosmetique Abdelhak'}
-              </span>
-              <span className="text-[10px] text-gray-400 font-bold tracking-widest block -mt-1">
-                عالم الفخامة والعناية بالجمال
-              </span>
+              <div className="flex items-center justify-between border-b pb-4 mb-4">
+                <h2 className="font-bold text-gray-900 text-sm">القائمة الرئيسية</h2>
+                <button onClick={() => setIsMenuOpen(false)} className="p-1.5 rounded-lg bg-gray-100 text-gray-500">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-2 text-xs font-bold text-gray-700">
+                <a href="#products-section" onClick={() => setIsMenuOpen(false)} className="block p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600">
+                  تصفح جميع المنتجات
+                </a>
+                <a href="#gift-section" onClick={() => setIsMenuOpen(false)} className="block p-3 rounded-xl hover:bg-rose-50 hover:text-rose-600 flex items-center justify-between">
+                  <span>صممي هديتك بنفسك 🎁</span>
+                  <span className="text-[10px] bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full">حصري</span>
+                </a>
+
+                <div className="pt-4 border-t">
+                  <span className="text-[10px] text-gray-400 font-bold block mb-2">الأقسام والفئات</span>
+                  {categories.map((c) => (
+                    <a 
+                      key={c.id} 
+                      href="#products-section" 
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block p-2.5 rounded-xl hover:bg-gray-50 text-gray-600"
+                    >
+                      • {c.name}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t pt-4 text-xs space-y-2 text-gray-500">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>التوصيل والمعاينة لـ 58 ولاية</span>
+              </div>
+              <p className="text-[10px] text-gray-400">جميع الحقوق محفوظة © Cosmetique Abdelhak</p>
             </div>
           </div>
-
-          <div className="hidden md:flex flex-1 max-w-md relative">
-            <input
-              type="text"
-              placeholder="ابحثي عن منتجات العناية، المكياج، أو العطور..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl pl-4 pr-10 py-2.5 text-sm focus:outline-none focus:border-rose-500 focus:bg-white transition"
-            />
-            <Search className="w-5 h-5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
-          </div>
-
-          <button
-            onClick={onOpenCart}
-            className="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 transition active:scale-95 border border-rose-100"
-          >
-            <ShoppingBag className="w-5 h-5" />
-            <span className="text-sm hidden sm:inline">السلة</span>
-          </button>
         </div>
-      </div>
-    </header>
+      )}
+    </>
   );
 }
