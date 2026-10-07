@@ -2,12 +2,16 @@ import React from 'react';
 import { useStore } from '../context/StoreContext';
 import { ShoppingBag, Search, Sparkles, Phone, ShieldCheck } from 'lucide-react';
 
-export default function Navbar({ onOpenCart }) {
-  const { settings, searchQuery, setSearchQuery } = useStore();
+export default function Navbar({ onOpenCart, onGoHome }) {
+  const { settings, searchQuery, setSearchQuery, setSelectedCategory } = useStore();
+
+  const handleLogoClick = () => {
+    setSelectedCategory('الكل');
+    if (onGoHome) onGoHome();
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-rose-100 shadow-sm font-sans">
-      {/* الشريط الإشهاري العلوي الديناميكي */}
       <div className="bg-rose-600 text-white text-xs py-2 px-4 text-center font-bold flex items-center justify-between max-w-7xl mx-auto">
         <div className="hidden sm:flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-yellow-300" />
@@ -26,13 +30,17 @@ export default function Navbar({ onOpenCart }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex items-center justify-between gap-4">
           
-          {/* اسم وماركة المتجر الخاص بك */}
-          <div className="flex items-center gap-2 cursor-pointer">
-            <div className="bg-gradient-to-tr from-rose-600 to-pink-500 text-white p-2.5 rounded-2xl shadow-md shadow-rose-200">
-              <Sparkles className="w-6 h-6" />
-            </div>
+          {/* الضغط على اسم المتجر أو اللوجو يعيد القائمة الرئيسية */}
+          <div className="flex items-center gap-2.5 cursor-pointer group" onClick={handleLogoClick}>
+            {settings.logoUrl ? (
+              <img src={settings.logoUrl} alt={settings.storeName} className="w-10 h-10 object-contain rounded-xl border border-rose-100 p-0.5" />
+            ) : (
+              <div className="bg-gradient-to-tr from-rose-600 to-pink-500 text-white p-2.5 rounded-2xl shadow-md shadow-rose-200 group-hover:scale-105 transition">
+                <Sparkles className="w-6 h-6" />
+              </div>
+            )}
             <div>
-              <span className="text-xl md:text-2xl font-black text-gray-900 tracking-tight block">
+              <span className="text-xl md:text-2xl font-black text-gray-900 tracking-tight block group-hover:text-rose-600 transition">
                 {settings.storeName || 'Cosmetique Abdelhak'}
               </span>
               <span className="text-[10px] text-gray-400 font-bold tracking-widest block -mt-1">
@@ -41,7 +49,6 @@ export default function Navbar({ onOpenCart }) {
             </div>
           </div>
 
-          {/* حقل البحث الذكي */}
           <div className="hidden md:flex flex-1 max-w-md relative">
             <input
               type="text"
@@ -53,7 +60,6 @@ export default function Navbar({ onOpenCart }) {
             <Search className="w-5 h-5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
           </div>
 
-          {/* زر السلة */}
           <button
             onClick={onOpenCart}
             className="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold px-4 py-2.5 rounded-2xl flex items-center gap-2 transition active:scale-95 border border-rose-100"
