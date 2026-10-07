@@ -1,81 +1,23 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
-import { Truck, ShieldCheck, Clock, ArrowRight, CheckCircle2 } from 'lucide-react';
-
-// قائمة الـ 58 ولاية جزائرية بالكامل
-const WILAYAS = [
-  { code: '01', name: 'أدرار', home: 1000, desk: 600 },
-  { code: '02', name: 'الشلف', home: 700, desk: 400 },
-  { code: '03', name: 'الأغواط', home: 800, desk: 500 },
-  { code: '04', name: 'أم البواقي', home: 700, desk: 400 },
-  { code: '05', name: 'باتنة', home: 700, desk: 400 },
-  { code: '06', name: 'بجاية', home: 700, desk: 400 },
-  { code: '07', name: 'بسكرة', home: 800, desk: 500 },
-  { code: '08', name: 'بشار', home: 1000, desk: 600 },
-  { code: '09', name: 'البليدة', home: 600, desk: 350 },
-  { code: '10', name: 'البويرة', home: 700, desk: 400 },
-  { code: '11', name: 'تمنراست', home: 1200, desk: 800 },
-  { code: '12', name: 'تبسة', home: 700, desk: 400 },
-  { code: '13', name: 'تلمسان', home: 700, desk: 400 },
-  { code: '14', name: 'تيارت', home: 700, desk: 400 },
-  { code: '15', name: 'تيزي وزو', home: 700, desk: 400 },
-  { code: '16', name: 'الجزائر العاصمة', home: 500, desk: 300 },
-  { code: '17', name: 'الجلفة', home: 800, desk: 500 },
-  { code: '18', name: 'جيجل', home: 700, desk: 400 },
-  { code: '19', name: 'سطيف', home: 700, desk: 400 },
-  { code: '20', name: 'سعيدة', home: 700, desk: 400 },
-  { code: '21', name: 'سكيكدة', home: 700, desk: 400 },
-  { code: '22', name: 'سيدي بلعباس', home: 700, desk: 400 },
-  { code: '23', name: 'عنابة', home: 700, desk: 400 },
-  { code: '24', name: 'قالمة', home: 700, desk: 400 },
-  { code: '25', name: 'قسنطينة', home: 700, desk: 400 },
-  { code: '26', name: 'المدية', home: 700, desk: 400 },
-  { code: '27', name: 'مستغانم', home: 700, desk: 400 },
-  { code: '28', name: 'المسيلة', home: 700, desk: 400 },
-  { code: '29', name: 'معسكر', home: 700, desk: 400 },
-  { code: '30', name: 'ورقلة', home: 900, desk: 600 },
-  { code: '31', name: 'وهران', home: 700, desk: 400 },
-  { code: '32', name: 'البيض', home: 900, desk: 550 },
-  { code: '33', name: 'إليزي', home: 1200, desk: 800 },
-  { code: '34', name: 'برج بوعريريج', home: 700, desk: 400 },
-  { code: '35', name: 'بومرداس', home: 600, desk: 350 },
-  { code: '36', name: 'الطارف', home: 700, desk: 400 },
-  { code: '37', name: 'تندوف', home: 1200, desk: 800 },
-  { code: '38', name: 'تيسمسيلت', home: 700, desk: 400 },
-  { code: '39', name: 'الوادي', home: 900, desk: 600 },
-  { code: '40', name: 'خنشلة', home: 700, desk: 400 },
-  { code: '41', name: 'سوق أهراس', home: 700, desk: 400 },
-  { code: '42', name: 'تيبازة', home: 600, desk: 350 },
-  { code: '43', name: 'ميلة', home: 700, desk: 400 },
-  { code: '44', name: 'عين الدفلى', home: 700, desk: 400 },
-  { code: '45', name: 'النعامة', home: 900, desk: 600 },
-  { code: '46', name: 'عين تموشنت', home: 700, desk: 400 },
-  { code: '47', name: 'غرداية', home: 900, desk: 600 },
-  { code: '48', name: 'غليزان', home: 700, desk: 400 },
-  { code: '49', name: 'المغير', home: 900, desk: 600 },
-  { code: '50', name: 'المنيعة', home: 1000, desk: 700 },
-  { code: '51', name: 'أولاد جلال', home: 900, desk: 600 },
-  { code: '52', name: 'برج باجي مختار', home: 1300, desk: 900 },
-  { code: '53', name: 'بني عباس', home: 1000, desk: 700 },
-  { code: '54', name: 'تيميمون', home: 1000, desk: 700 },
-  { code: '55', name: 'تقرت', home: 900, desk: 600 },
-  { code: '56', name: 'جانت', home: 1300, desk: 900 },
-  { code: '57', name: 'عين صالح', home: 1200, desk: 800 },
-  { code: '58', name: 'عين قزام', home: 1300, desk: 900 }
-];
+import { Truck, ShieldCheck, Clock, ArrowRight, CheckCircle2, ChevronRight, ChevronLeft } from 'lucide-react';
 
 export default function ProductLandingPage({ product, onBack }) {
-  const { createOrder } = useStore();
+  const { createOrder, wilayas, settings } = useStore();
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [selectedWilaya, setSelectedWilaya] = useState(WILAYAS[15].name); // الجزائر العاصمة
+  const [selectedWilaya, setSelectedWilaya] = useState(wilayas[0]?.name || 'الجزائر العاصمة');
   const [shippingType, setShippingType] = useState('home');
   const [baladiya, setBaladiya] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [orderSuccess, setOrderSuccess] = useState(false);
 
-  const currentWilaya = WILAYAS.find((w) => w.name === selectedWilaya) || WILAYAS[15];
+  // صور المنتج والشريط المتغير
+  const productImages = product.images && product.images.length > 0 ? product.images : [product.image];
+  const [currentImgIndex, setCurrentImgIndex] = useState(0);
+
+  const currentWilaya = wilayas.find((w) => w.name === selectedWilaya) || wilayas[0] || { home: 600, desk: 400 };
   const shippingFee = shippingType === 'home' ? currentWilaya.home : currentWilaya.desk;
   const productTotal = product.price * quantity;
   const grandTotal = productTotal + shippingFee;
@@ -103,7 +45,7 @@ export default function ProductLandingPage({ product, onBack }) {
 
   if (orderSuccess) {
     return (
-      <div className="min-h-screen bg-rose-50/50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-rose-50/50 flex items-center justify-center p-4 font-sans">
         <div className="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full text-center border border-rose-100">
           <CheckCircle2 className="w-16 h-16 text-emerald-500 mx-auto mb-4 animate-bounce" />
           <h2 className="text-2xl font-black text-gray-800 mb-2">تم تسجيل طلبك بنجاح!</h2>
@@ -123,9 +65,8 @@ export default function ProductLandingPage({ product, onBack }) {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans pb-12">
-      {/* الشريط العلوي الهيدر باللون الوردي */}
       <div className="bg-rose-600 text-white text-center py-2.5 text-sm font-bold flex items-center justify-center gap-2 shadow-sm">
-        <Truck className="w-4 h-4" /> التوصيل متوفر لجميع 58 ولاية
+        <Truck className="w-4 h-4" /> التوصيل متوفر لجميع 58 ولاية والدفع عند الاستلام
       </div>
 
       <div className="max-w-5xl mx-auto px-4 pt-4">
@@ -138,7 +79,7 @@ export default function ProductLandingPage({ product, onBack }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100">
           
-          {/* قسم استمارة الشراء المباشر */}
+          {/* استمارة الطلب المباشر */}
           <div className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
@@ -174,7 +115,7 @@ export default function ProductLandingPage({ product, onBack }) {
                     onChange={(e) => setSelectedWilaya(e.target.value)}
                     className="w-full border border-rose-200 rounded-xl px-2 py-2.5 text-xs focus:outline-none focus:border-rose-600 bg-rose-50/20"
                   >
-                    {WILAYAS.map((w) => (
+                    {wilayas.map((w) => (
                       <option key={w.code} value={w.name}>
                         {w.code} - {w.name}
                       </option>
@@ -206,7 +147,6 @@ export default function ProductLandingPage({ product, onBack }) {
                 />
               </div>
 
-              {/* أزرار زيادة ونقصان الكمية */}
               <div className="flex justify-center items-center gap-3 pt-2">
                 <button
                   type="button"
@@ -235,7 +175,6 @@ export default function ProductLandingPage({ product, onBack }) {
               </button>
             </form>
 
-            {/* ملخص الطلبية */}
             <div className="border border-rose-100 rounded-2xl p-4 bg-rose-50/30 space-y-3 mt-4">
               <h4 className="font-bold text-center text-sm text-gray-800">ملخص الطلبية</h4>
               <div className="flex justify-between text-xs text-gray-600">
@@ -253,18 +192,58 @@ export default function ProductLandingPage({ product, onBack }) {
             </div>
           </div>
 
-          {/* قسم صورة المنتج والوصف والشعارات */}
+          {/* قسم صورة المنتج والوصف والمشغل المتغير للصور */}
           <div className="flex flex-col justify-between">
             <div>
               <h2 className="text-xl font-black text-gray-900 text-center mb-3">{product.name}</h2>
-              <div className="relative rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 mb-4">
-                <img src={product.image} alt={product.name} className="w-full h-64 md:h-72 object-contain p-2" />
+              
+              {/* مشغل صور المنتج المتغير */}
+              <div className="relative rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 mb-3 group">
+                <img
+                  src={productImages[currentImgIndex]}
+                  alt={product.name}
+                  className="w-full h-64 md:h-72 object-contain p-2 transition duration-300"
+                />
+                
+                {productImages.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setCurrentImgIndex((prev) => (prev - 1 + productImages.length) % productImages.length)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-1.5 rounded-full shadow text-gray-800"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => setCurrentImgIndex((prev) => (prev + 1) % productImages.length)}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-1.5 rounded-full shadow text-gray-800"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                  </>
+                )}
               </div>
+
+              {/* المصغرات أسفل الصورة الرئيسية */}
+              {productImages.length > 1 && (
+                <div className="flex justify-center gap-2 mb-4">
+                  {productImages.map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={img}
+                      alt=""
+                      onClick={() => setCurrentImgIndex(idx)}
+                      className={`w-12 h-12 rounded-xl object-cover border-2 cursor-pointer transition ${
+                        idx === currentImgIndex ? 'border-rose-600 scale-105' : 'border-gray-200 opacity-60'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+
               <div className="text-2xl font-black text-rose-600 text-center mb-4">
                 {product.price} <span className="text-sm font-bold text-gray-500">د.ج</span>
               </div>
 
-              {/* مربع الوصف الوردي */}
               <div className="bg-rose-600 text-white text-center py-2 font-bold rounded-t-2xl text-sm">
                 وصف المنتج
               </div>
@@ -273,7 +252,6 @@ export default function ProductLandingPage({ product, onBack }) {
               </div>
             </div>
 
-            {/* أيقونات الضمان والتوصيل */}
             <div className="border border-rose-200 rounded-2xl p-4 flex justify-around text-center text-xs font-bold gap-2 bg-white shadow-sm">
               <div className="flex flex-col items-center">
                 <ShieldCheck className="w-7 h-7 text-rose-600 mb-1" />
@@ -290,7 +268,7 @@ export default function ProductLandingPage({ product, onBack }) {
             </div>
 
             <div className="mt-4 text-center bg-rose-100 text-rose-700 text-xs font-bold py-2.5 rounded-xl border border-rose-200">
-              سيتم التواصل معكم لتأكيد الطلب عبر الرقم المدخل
+              سيتم التواصل معكم لتأكيد الطلب عبر الرقم المدخل ({settings.phone})
             </div>
           </div>
         </div>
